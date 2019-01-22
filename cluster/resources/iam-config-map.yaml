@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: kube-system
+  name: aws-iam-authenticator
+  labels:
+    k8s-app: aws-iam-authenticator
+data:
+  config.yaml: |
+    clusterID: NAME
+    server:
+      mapRoles:
+      - roleARN: arn:aws:iam::ACCNT_ID:role/K8noderole
+        username: aws:{{AccountID}}:instance:{{SessionName}}
+        groups:
+        - system:bootstrappers
+        - aws:instance
+      - roleARN: MASTER_IAM_ROLE_ARN
+        username: system:node:{{EC2PrivateDNSName}}
+        groups:
+        - system:masters
+        - system:bootstrappers
+      - rolearn: NODE_IAM_ROLE_ARN
+        username: system:node:{{EC2PrivateDNSName}}          
+        groups:
+        - system:bootstrappers
+        - system:nodes
+      - rolearn: dev-arn
+        username: dev
+      - rolearn: test-arn
+        username: test
+      - rolearn: ops-arn
+        username: ops
+      - rolearn: admin-arn
+        username: admin
+      mapUsers:
+      - userARN: arn:aws:iam::ACCNT_ID:user/kops
+        username: kops
+        groups:
+        - system:masters

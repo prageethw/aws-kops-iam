@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: kube-system
+  name: aws-iam-authenticator
+  labels:
+    k8s-app: aws-iam-authenticator
+data:
+  config.yaml: |    
+    clusterID: prageethw.co.k8s.local
+    server:
+      mapRoles:
+      - roleARN: arn:aws:iam::326444312331:role/KubernetesAdmin
+        username: kubernetes-admin
+        groups:
+        - system:masters
+      mapUsers:
+            - userARN: arn:aws:iam::326444312331:user/kops
+              username: kops
+              groups:
+              - system:masters
