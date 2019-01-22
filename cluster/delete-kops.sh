@@ -2,11 +2,6 @@
 
 #### delete cluster with $NAME  and s3 bucket ####
 
-# source ./k8s-kops-cluster.temp
-
-
-
-
 ##delete Roles
 aws iam delete-role --role-name kops-dev
 aws iam delete-role --role-name kops-test
