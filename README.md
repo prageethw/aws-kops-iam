@@ -22,13 +22,11 @@ export AWS_DEFAULT_REGION=[...]
 
 ```bash
 MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=3 NODE_SIZE=t2.small MASTER_SIZE=t2.small \
-
 MY_ORG_DNS_NAME=example.k8s.local USE_HELM=true BASIC_AUTH_PWD=abcd1234 sh -x build-k8s-cluster.sh
 ```
 
 **Note:**
 Above command will create a cluster named example.com.au.k8s.local with 3 master nodes and 3 worker nodes.
-
 BASIC_AUTH_PWD is the password you need to login to monitoring and alerting systems.
 
 ## 2.  delete cluster
