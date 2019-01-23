@@ -2,6 +2,16 @@
 
 #### delete cluster with $NAME  and s3 bucket ####
 
+kops delete cluster \
+    --name $NAME \
+    --yes
+
+aws s3api delete-bucket \
+    --bucket $BUCKET_NAME
+
+aws acm delete-certificate \
+    --certificate-arn $AWS_SSL_CERT_ARN
+
 ##delete Roles
 aws iam delete-role --role-name kops-dev
 aws iam delete-role --role-name kops-test
@@ -61,16 +71,6 @@ aws iam delete-user --user-name kops-test
 aws iam delete-user --user-name kops-ops
 aws iam delete-user --user-name kops-admin
 
-
-kops delete cluster \
-    --name $NAME \
-    --yes
-
-aws s3api delete-bucket \
-    --bucket $BUCKET_NAME
-
-aws acm delete-certificate \
-    --certificate-arn $AWS_SSL_CERT_ARN
 
 #############################
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
 cd cluster
-# source ./k8s-kops-cluster.temp
+source ./k8s-kops-cluster.temp
 ./delete-kops.sh
 ./kops-aws-prerequisite-cleanup.sh
