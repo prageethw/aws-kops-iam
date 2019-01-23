@@ -8,7 +8,7 @@ This repo contains files that will help you to point to a K8s cluster using Kops
 2. Install JQ.
 3. Helm.
 4. Create a AWS account.
-5. IAM authenticator
+5. IAM authenticator.
 
 ## 1. set k8s cluster
 
@@ -18,7 +18,7 @@ sh  set*.sh
 ```
 
 **Note:**
-above command will provide your kubeconfig details and default iam details to a k8s cluster that you can interact with.
+Above command will provide your kubeconfig details and default iam details to a k8s cluster that you can interact with.
 
 ## 2. using helm
 
