@@ -25,6 +25,7 @@ data:
         groups:
         - system:bootstrappers
         - system:nodes
+      # all rbac users from here...
       - rolearn: dev-arn
         username: dev
       - rolearn: test-arn
@@ -32,9 +33,4 @@ data:
       - rolearn: ops-arn
         username: ops
       - rolearn: admin-arn
-        username: admin
-      mapUsers:
-      - userARN: arn:aws:iam::ACCNT_ID:user/kops
-        username: kops
-        groups:
-        - system:masters
+        username: admin-user

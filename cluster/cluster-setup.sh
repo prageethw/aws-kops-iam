@@ -375,7 +375,7 @@ if [[ -z "${DRY_RUN}"  ]]; then
 
   mkdir -p config
 
-  export KUBECONFIG=$PWD/config/kops-kubecfg.yaml
+  export KUBECONFIG=$PWD/keys/kops/kops-kubecfg.yaml
 
   kops export kubecfg --name ${NAME}
   echo ""
