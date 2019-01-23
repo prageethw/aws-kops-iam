@@ -3,8 +3,6 @@
 ####### create group and assign policies ######
 ###kops group
 aws iam create-group --group-name kops
-###k8s group
-aws iam create-group --group-name k8s-users
 
 ###kops group policy attach
 aws iam attach-group-policy \
@@ -30,14 +28,6 @@ aws iam attach-group-policy \
 aws iam attach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess \
     --group-name kops
-###k8s group policy attach
-aws iam attach-group-policy \
-    --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess \
-    --group-name k8s-users
-
-aws iam attach-group-policy \
-    --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess \
-    --group-name k8s-users
 
 ################################################
 
@@ -46,23 +36,15 @@ aws iam attach-group-policy \
 aws iam create-user \
     --user-name kops
 
-###----------k8s user
-aws iam create-user \
-        --user-name k8s-user
 
 #wait till user really created
 aws  iam  wait --user-name user-exists kops
-### wait till user created
-aws  iam  wait --user-name user-exists k8s-user
+
 
 ### add user to group
 aws iam add-user-to-group \
     --user-name kops \
     --group-name kops
-
-aws iam add-user-to-group \
-    --user-name k8s-user \
-    --group-name k8s-users
 
 ###############################################
 
@@ -70,11 +52,6 @@ aws iam add-user-to-group \
 mkdir -p keys/kops
 aws iam create-access-key \
     --user-name kops >keys/kops/kops-creds
-
-### create k8s user access keys
-
-aws iam create-access-key \
-    --user-name k8s-user >keys/k8s-user-creds
 
 ###############################################
 

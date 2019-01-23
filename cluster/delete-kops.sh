@@ -7,14 +7,12 @@ aws iam delete-role --role-name kops-dev
 aws iam delete-role --role-name kops-test
 aws iam delete-role --role-name kops-ops
 aws iam delete-role --role-name kops-admin
-# aws iam delete-role --role-name kops
 
 ## DELETE policy
 aws iam delete-group-policy --policy-name kops-dev --group-name kops-dev
 aws iam delete-group-policy --policy-name kops-test --group-name kops-test
 aws iam delete-group-policy --policy-name kops-ops --group-name kops-ops
 aws iam delete-group-policy --policy-name kops-admin --group-name kops-admin
-# aws iam delete-group-policy --policy-name kops --group-name kops
 
 # delete users from group
 aws iam remove-user-from-group \

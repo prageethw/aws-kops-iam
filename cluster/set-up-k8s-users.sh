@@ -28,39 +28,40 @@ aws iam add-user-to-group \
 aws iam add-user-to-group \
     --user-name kops-admin \
     --group-name kops-admin
-
+    
+mkdir -p config
 #create policy doc
-cat resources/assume-dev-kops-iam-role-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee resources/assume-dev-kops-iam-role-policy.temp.json
-cat resources/assume-test-kops-iam-role-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee resources/assume-test-kops-iam-role-policy.temp.json
-cat resources/assume-ops-kops-iam-role-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee resources/assume-ops-kops-iam-role-policy.temp.json
-cat resources/assume-admin-kops-iam-role-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee resources/assume-admin-kops-iam-role-policy.temp.json
+cat resources/assume-dev-kops-iam-role-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee config/assume-dev-kops-iam-role-policy.temp.json
+cat resources/assume-test-kops-iam-role-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee config/assume-test-kops-iam-role-policy.temp.json
+cat resources/assume-ops-kops-iam-role-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee config/assume-ops-kops-iam-role-policy.temp.json
+cat resources/assume-admin-kops-iam-role-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee config/assume-admin-kops-iam-role-policy.temp.json
 #create roles
-export DEV_ROLE_ARN=$(aws iam create-role --role-name kops-dev --assume-role-policy-document file://resources/assume-dev-kops-iam-role-policy.temp.json | jq -r .Role.Arn)
-export TEST_ROLE_ARN=$(aws iam create-role --role-name kops-test --assume-role-policy-document file://resources/assume-test-kops-iam-role-policy.temp.json | jq -r .Role.Arn)
-export OPS_ROLE_ARN=$(aws iam create-role --role-name kops-ops --assume-role-policy-document file://resources/assume-ops-kops-iam-role-policy.temp.json | jq -r .Role.Arn)
-export ADMIN_ROLE_ARN=$(aws iam create-role --role-name kops-admin --assume-role-policy-document file://resources/assume-admin-kops-iam-role-policy.temp.json | jq -r .Role.Arn)
+export DEV_ROLE_ARN=$(aws iam create-role --role-name kops-dev --assume-role-policy-document file://config/assume-dev-kops-iam-role-policy.temp.json | jq -r .Role.Arn)
+export TEST_ROLE_ARN=$(aws iam create-role --role-name kops-test --assume-role-policy-document file://config/assume-test-kops-iam-role-policy.temp.json | jq -r .Role.Arn)
+export OPS_ROLE_ARN=$(aws iam create-role --role-name kops-ops --assume-role-policy-document file://config/assume-ops-kops-iam-role-policy.temp.json | jq -r .Role.Arn)
+export ADMIN_ROLE_ARN=$(aws iam create-role --role-name kops-admin --assume-role-policy-document file://config/assume-admin-kops-iam-role-policy.temp.json | jq -r .Role.Arn)
 #create group policy
-cat resources/dev-kops-iam-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee resources/dev-kops-iam-policy.temp.json
-cat resources/test-kops-iam-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee resources/test-kops-iam-policy.temp.json
-cat resources/ops-kops-iam-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee resources/ops-kops-iam-policy.temp.json
-cat resources/admin-kops-iam-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee resources/admin-kops-iam-policy.temp.json
+cat resources/dev-kops-iam-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee config/dev-kops-iam-policy.temp.json
+cat resources/test-kops-iam-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee config/test-kops-iam-policy.temp.json
+cat resources/ops-kops-iam-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee config/ops-kops-iam-policy.temp.json
+cat resources/admin-kops-iam-policy.json | sed -e "s@ACCOUNT_ID@$ACCNT_ID@g" | tee config/admin-kops-iam-policy.temp.json
 #assign group policy to the groups
 aws iam put-group-policy \
     --group-name kops-dev \
     --policy-name kops-dev \
-    --policy-document file://resources/dev-kops-iam-policy.temp.json
+    --policy-document file://config/dev-kops-iam-policy.temp.json
 aws iam put-group-policy \
     --group-name kops-test \
     --policy-name kops-test \
-    --policy-document file://resources/test-kops-iam-policy.temp.json
+    --policy-document file://config/test-kops-iam-policy.temp.json
 aws iam put-group-policy \
     --group-name kops-ops \
     --policy-name kops-ops\
-    --policy-document file://resources/ops-kops-iam-policy.temp.json
+    --policy-document file://config/ops-kops-iam-policy.temp.json
 aws iam put-group-policy \
     --group-name kops-admin \
     --policy-name kops-admin \
-    --policy-document file://resources/admin-kops-iam-policy.temp.json
+    --policy-document file://config/admin-kops-iam-policy.temp.json
 
 ##download keys
 mkdir -p keys/dev
@@ -82,10 +83,10 @@ cat resources/iam-config-map.yaml  | sed -e "s@dev-arn@$DEV_ROLE_ARN@g" \
                                    | sed -e "s@NODE_IAM_ROLE_ARN@$NODE_IAM_ROLE_ARN@g" \
                                    | sed -e "s@ACCNT_ID@$ACCNT_ID@g" \
                                    | sed -e "s@MASTER_IAM_ROLE_ARN@$MASTER_IAM_ROLE_ARN@g" \
-                                   | tee resources/iam-config-map.temp.yaml
+                                   | tee config/iam-config-map.temp.yaml
 
-# kubectl  apply -f resources/iam-config-map.temp.yaml
-# kubectl patch cm aws-auth --patch "$(cat resources/patch-aws-auth.temp.yaml)" -n kube-system
+# kubectl  apply -f config/iam-config-map.temp.yaml
+# kubectl patch cm aws-auth --patch "$(cat config/patch-aws-auth.temp.yaml)" -n kube-system
 CA_AUTHORITY_DATA=$(kubectl config view --raw -o json |jq -r '.clusters[0].cluster."certificate-authority-data"')
 
 #create dev user kube config
@@ -343,7 +344,8 @@ echo \"\"
 echo \"You can re-generate a token by running below command afer initial context setting \"
 echo \"\"
 echo \"-----------------------------\"
-echo \"kubectl -n kube-system describe secret \$(kubectl -n kube-system get secret | grep admin-user-sa | awk '{print \$1}') | grep token: \""> keys/admin/set-up-admin.sh
+echo \"kubectl -n kube-system describe secret \$(kubectl -n kube-system get secret | grep admin-user-sa | awk '{print \$1}') | grep token: \"
+echo \"-----------------------------\""> keys/admin/set-up-admin.sh
 
 ##----------------
 

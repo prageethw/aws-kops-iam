@@ -140,7 +140,7 @@ else
     sh set-up-k8s-users.sh
 #########################################
     # kubectl apply -f  iam-config-map.yaml
-    kubectl  apply -f resources/iam-config-map.temp.yaml
+    kubectl  apply -f config/iam-config-map.temp.yaml
     sed -i '' '/rbac: {}/r resources/enable-iam-auth-kops.yaml' $NAME.yaml
     kops replace -f $NAME.yaml
     kops update cluster $NAME --yes
@@ -367,7 +367,7 @@ export KOPS_STATE_STORE=$KOPS_STATE_STORE" \
 
 #### export clueter configs for distribution ####
 if [[ -z "${DRY_RUN}"  ]]; then
-  echo "the cluster KUBECONFIG logged in to $PWD/config/kops-kubecfg.yaml ..."
+  echo "the cluster KUBECONFIG logged in to $PWD/keys/kops/kops-kubecfg.yaml ..."
 
   echo ""
   echo "------------------------------------------"
