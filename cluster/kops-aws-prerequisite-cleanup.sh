@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #### clean ssh key and iam key ####
-
+set -x
 aws ec2 delete-key-pair --key-name kops
 
 ACCESS_KEY_ID_KOPS=$(\
