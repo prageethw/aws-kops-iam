@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x
+source ./k8s-kops-cluster.temp
 #### delete cluster with $NAME  and s3 bucket ####
 
 kops delete cluster \

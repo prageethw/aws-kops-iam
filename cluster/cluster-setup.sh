@@ -85,7 +85,7 @@ kops create cluster \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
   --kubernetes-version v1.11.7 \
-  --ssh-public-key ${SSH_PUBLIC_KEY:-keys/k8s.pub} \
+  --ssh-public-key ${SSH_PUBLIC_KEY:-keys/kops/kops.pub} \
   --networking kubenet \
   --authorization RBAC \
   --admin-access ${IP_WHITELIST:-0.0.0.0/0} \
