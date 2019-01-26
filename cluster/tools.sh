@@ -73,6 +73,7 @@ helm install stable/metrics-server \
     --set resources.limits.cpu="100m",resources.limits.memory="50Mi"
 kubectl -n metrics rollout status deployment metrics-server
 kubectl apply -f resources/metrics-server-hpa.yaml
+kubectl apply -f resources/metrics-server-pdb.yaml
 
 # install monitoring and alerting tools
 #enable basic auth
@@ -95,7 +96,8 @@ helm install stable/prometheus \
     --set alertmanager.resources.requests.cpu="250m",alertmanager.resources.requests.memory="0.5Gi" \
     --set alertmanager.statefulSet.enabled="true" \
     -f resources/monitoring-alerting-limits.yml
-kubectl -n metrics rollout status statefulset prometheus-server
+# kubectl -n metrics rollout status statefulset prometheus-alertmanager
+# kubectl -n metrics rollout status statefulset prometheus-server
 kubectl apply -f resources/prometheus-pdb.yaml
 
 #validate basic auth with

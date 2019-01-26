@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 #### delete cluster with $NAME  and s3 bucket ####
 
 kops delete cluster \

@@ -9,8 +9,9 @@ This repo contains files that will help you to create a K8s cluster using Kops o
 3. Create a AWS account.
 4. Helm.
 5. IAM authenticator.
+6. kops 1.10.0 till [issue](https://github.com/kubernetes/kops/pull/6201) fixed.
 
-## set-up terminal with AWS access details.
+## set-up terminal with AWS access details
 
 ```bash
 export AWS_ACCESS_KEY_ID=[...]
