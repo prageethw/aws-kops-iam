@@ -7,7 +7,7 @@ This repo contains files that will help you to point to a K8s cluster using Kops
 1. Install K8s CLI.
 2. Install JQ.
 3. Helm.
-4. Create a AWS account.
+4. Create a AWS account with admin rights.
 5. IAM authenticator.
 6. kops 1.10.0 till [issue](https://github.com/kubernetes/kops/pull/6201) fixed.
 
