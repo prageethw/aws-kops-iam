@@ -39,6 +39,9 @@ aws iam detach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess \
     --group-name kops
 
+aws iam detach-group-policy \
+    --policy-arn arn:aws:iam::aws:policy/AWSLambdaFullAccess \
+    --group-name kops
 
 ############################
 
