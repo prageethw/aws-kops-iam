@@ -1,0 +1,19 @@
+{
+  "interval": "5",
+  "probability": 100,
+  "enableForASGs": ["nodes.prageethw.co.k8s.local"],
+  "disableForASGs": [
+  ],
+  "enableForTags": [
+  	{
+  		"key": "chaos_monkey",
+  		"value": "true"
+	}
+  ],
+  "slackWebhook": [
+  	{
+  		"channel": "#alerts",
+  		"webhookId": "https://hooks.slack.com/services/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"
+  	}
+  ]
+}
