@@ -104,7 +104,6 @@ kubectl apply -f resources/prometheus-pdb.yaml
 # curl -v -u sysops:$BASIC_AUTH_PWD https://$PROM_ADDR
 
 #install prom adaptor for prom integration with k8s metrics server
-
 helm install \
     stable/prometheus-adapter \
     --name prometheus-adapter \
@@ -115,11 +114,9 @@ helm install \
     --set metricsRelistInterval=90s \
     --set prometheus.url=http://prometheus-server.metrics.svc \
     --set prometheus.port=80 \
-    --set resources.limits.cpu="100m",resources.limits.memory="200Mi"
-
-kubectl -n metrics \
-    rollout status \
-    deployment prometheus-adapter
+    --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
+    --values resources/prom-adapter-values.yml
+kubectl -n metrics rollout status deployment prometheus-adapter
 
 # install grafana
 helm install stable/grafana \
