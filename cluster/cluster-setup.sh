@@ -7,6 +7,8 @@ kubectl config unset current-context
 kubectl config unset users
 kubectl config unset contexts
 kubectl config unset clusters
+echo "current kube-config is :"
+kubectl config view
 
 if [[ -z "${MY_ORG_DNS_NAME}" && -z "${MAX_NODE_COUNT}" && -z "${BASIC_AUTH_PWD}" ]]; then
 
@@ -84,7 +86,7 @@ kops create cluster \
   --zones $ZONES \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
-  --kubernetes-version v1.11.7 \
+  --kubernetes-version v1.11.5 \
   --ssh-public-key ${SSH_PUBLIC_KEY:-keys/kops/kops.pub} \
   --networking kubenet \
   --authorization RBAC \
