@@ -106,6 +106,8 @@ else
     
     # cat manifest-cluster.yaml | sed -e  "s@KOPS_STATE_STORE@$KOPS_STATE_STORE@g" |     tee $NAME.yaml
     cat $NAME.yaml  | sed -e  "s@minSize: $NODE_COUNT@minSize: ${MIN_NODE_COUNT:-2}@g" | tee $NAME.yaml
+    #enable webhook
+    sed -i '' '/anonymousAuth: false/r resources/enable-webhook.yaml' $NAME.yaml
     kops create -f $NAME.yaml
     kops create secret --name $NAME sshpublickey admin -i keys/kops/kops.pub
     kops update cluster $NAME  --yes
@@ -150,7 +152,9 @@ else
     kops rolling-update cluster ${NAME} --instance-group-roles=Master  --cloudonly --force --yes
     kops validate cluster
 ##############################################################
-
+#### fix webhook rbac
+    kubectl apply -f resources/enable-webhook-rbac.yaml
+####
 #### intall ingress ####
 
     #kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/ingress-nginx/v1.6.0.yaml
@@ -171,7 +175,15 @@ else
         helm init --service-account tiller-dev --tiller-namespace dev
         helm init --service-account tiller-test --tiller-namespace test 
         helm init --service-account tiller-ops --tiller-namespace ops
-        
+        #delete service and only allow CLI helm comms , security patch as suggested here https://engineering.bitnami.com/articles/helm-security.html
+        kubectl -n kube-system delete service tiller-deploy
+        kubectl -n dev delete service tiller-deploy
+        kubectl -n test delete service tiller-deploy
+        kubectl -n ops delete service tiller-deploy
+        kubectl -n kube-system patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
+        kubectl -n dev patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
+        kubectl -n test patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
+        kubectl -n ops patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"       
 	    kubectl -n kube-system rollout status deploy tiller-deploy
         kubectl -n dev rollout status deploy tiller-deploy
         kubectl -n test rollout status deploy tiller-deploy

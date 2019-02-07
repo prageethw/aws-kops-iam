@@ -1,0 +1,2 @@
+    authenticationTokenWebhook: true
+    authorizationMode: Webhook
