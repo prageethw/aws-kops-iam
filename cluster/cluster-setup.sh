@@ -180,11 +180,11 @@ else
         kubectl -n dev delete service tiller-deploy
         kubectl -n test delete service tiller-deploy
         kubectl -n ops delete service tiller-deploy
-        kubectl -n kube-system patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
-        kubectl -n dev patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
-        kubectl -n test patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"
-        kubectl -n ops patch deployment tiller-deploy --patch "$(cat resources/tiller-security-patch.yaml)"       
-	    kubectl -n kube-system rollout status deploy tiller-deploy
+        kubectl -n kube-system patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
+        kubectl -n dev patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
+        kubectl -n test patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
+        kubectl -n ops patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
+        kubectl -n kube-system rollout status deploy tiller-deploy
         kubectl -n dev rollout status deploy tiller-deploy
         kubectl -n test rollout status deploy tiller-deploy
         kubectl -n ops rollout status deploy tiller-deploy
