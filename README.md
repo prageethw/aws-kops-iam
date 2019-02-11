@@ -23,7 +23,7 @@ export AWS_DEFAULT_REGION=[...]
 
 ```bash
 
-MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=2 NODE_SIZE=c5.large MASTER_SIZE=t2.small MY_ORG_DNS_NAME=prageethw.co.k8s.local USE_HELM=true BASIC_AUTH_PWD=abcd1234 time sh -x build-k8s-cluster.sh
+MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=2 NODE_SIZE=c5.large MASTER_SIZE=t2.small MY_ORG_DNS_NAME=prageethw.co USE_HELM=true BASIC_AUTH_PWD=abcd1234 time sh -x build-k8s-cluster.sh
 ```
 
 **Note:**
@@ -41,7 +41,7 @@ To cleanup all AWS resources and temporary files.
 ## 3. dry run
 
 ```bash
-MASTER_COUNT=3 NODE_COUNT=3 NODE_SIZE=t2.small MASTER_SIZE=t2.small DRY_RUN=true MY_ORG_DNS_NAME=example.k8s.local USE_HELM=true sh -x build-k8s-cluster.sh
+MASTER_COUNT=3 NODE_COUNT=3 NODE_SIZE=t2.small MASTER_SIZE=t2.small DRY_RUN=true MY_ORG_DNS_NAME=prageethw.co USE_HELM=true sh -x build-k8s-cluster.sh
 sh delete-k8s-cluster.sh
 ```
 
