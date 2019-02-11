@@ -22,8 +22,8 @@ export AWS_DEFAULT_REGION=[...]
 ## 1.  build a kops k8s cluster
 
 ```bash
-MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=3 NODE_SIZE=t2.small MASTER_SIZE=t2.small \
-MY_ORG_DNS_NAME=example.k8s.local USE_HELM=true BASIC_AUTH_PWD=abcd1234 sh -x build-k8s-cluster.sh
+MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=3 NODE_SIZE=c5.large MASTER_SIZE=t2.small \
+MY_ORG_DNS_NAME=example.k8s.local USE_HELM=true BASIC_AUTH_PWD=abcd1234 time sh -x build-k8s-cluster.sh
 ```
 
 **Note:**
