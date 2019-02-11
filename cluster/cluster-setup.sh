@@ -81,7 +81,7 @@ kops create cluster \
   --name $NAME \
   --master-count ${MASTER_COUNT:-3} \
   --node-count ${NODE_COUNT:-3} \
-  --master-size ${MASTER_SIZE:-t3.small} \
+  --master-size ${MASTER_TYPE:-t3.small} \
   --node-size ${NODE_TYPE:-t3.small} \
   --zones $ZONES \
   --encrypt-etcd-storage \
