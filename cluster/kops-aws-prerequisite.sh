@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 ####### create group and assign policies ######
 ###kops group
 aws iam create-group --group-name kops

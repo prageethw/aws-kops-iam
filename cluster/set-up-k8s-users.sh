@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 #create user groups
 aws iam create-group --group-name kops-dev
 aws iam create-group --group-name kops-test
