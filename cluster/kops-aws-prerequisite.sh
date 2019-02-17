@@ -33,6 +33,11 @@ aws iam attach-group-policy \
     --policy-arn arn:aws:iam::aws:policy/AWSCertificateManagerFullAccess \
     --group-name kops
 
+aws iam put-group-policy \
+    --group-name kops \
+    --policy-name kops-kms \
+    --policy-document file://resources/kops-kms-policy.json
+
 ################################################
 
 ####### create user and assign to the group ######

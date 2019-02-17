@@ -25,6 +25,11 @@ aws iam delete-group-policy --policy-name kops-test --group-name kops-test
 aws iam delete-group-policy --policy-name kops-ops --group-name kops-ops
 aws iam delete-group-policy --policy-name kops-admin --group-name kops-admin
 
+aws iam delete-group-policy --policy-name kms-dev --group-name kops-dev
+aws iam delete-group-policy --policy-name kms-test --group-name kops-test
+aws iam delete-group-policy --policy-name kms-ops --group-name kops-ops
+aws iam delete-group-policy --policy-name kms-admin --group-name kops-admin
+
 # delete users from group
 aws iam remove-user-from-group \
     --user-name kops-dev \

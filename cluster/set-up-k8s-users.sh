@@ -63,6 +63,25 @@ aws iam put-group-policy \
     --policy-name kops-admin \
     --policy-document file://config/admin-kops-iam-policy.temp.json
 
+#assign kms cmk to roles
+
+aws iam put-group-policy \
+    --group-name kops-dev \
+    --policy-name kms-dev \
+    --policy-document file://resources/user-kms-policy.json
+aws iam put-group-policy \
+    --group-name kops-test \
+    --policy-name kms-test \
+    --policy-document file://resources/user-kms-policy.json
+aws iam put-group-policy \
+    --group-name kops-ops \
+    --policy-name kms-ops \
+    --policy-document file://resources/user-kms-policy.json
+aws iam put-group-policy \
+    --group-name kops-admin \
+    --policy-name kms-admin \
+    --policy-document file://resources/user-kms-policy.json
+
 ##download keys
 mkdir -p keys/dev
 aws iam create-access-key --user-name kops-dev >keys/dev/kops-dev-creds
