@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #### clean ssh key and iam key ####
+#this script needs to be executed as admin
 set -x
-source ./k8s-eks-cluster.temp
 aws ec2 delete-key-pair --key-name kops
 
 ACCESS_KEY_ID_KOPS=$(\
@@ -47,11 +47,6 @@ aws iam detach-group-policy \
 aws iam delete-group-policy --policy-name kops-kms --group-name kops
 
 ############################
-
-# delete kms cmk
-aws kms disable-key --key-id $KMS_CMK_ARN
-aws kms schedule-key-deletion --key-id $KMS_CMK_ARN --pending-window-in-days 7
-aws kms delete-alias --alias-name 'alias/helm-enc-dec-kms-cmk'
 
 #### remove user from group ####
 

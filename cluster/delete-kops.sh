@@ -77,6 +77,10 @@ aws iam delete-user --user-name kops-test
 aws iam delete-user --user-name kops-ops
 aws iam delete-user --user-name kops-admin
 
+# delete kms cmk
+aws kms disable-key --key-id $KMS_CMK_ARN
+aws kms schedule-key-deletion --key-id $KMS_CMK_ARN --pending-window-in-days 7
+aws kms delete-alias --alias-name $KMS_CMK_ALIAS
 
 #############################
 

@@ -21,11 +21,13 @@ else
     export ACCNT_ID=$(aws sts get-caller-identity --output text --query Account)
     # create kms cmk
     export KMS_CMK_ARN=$(aws kms create-key --description "kms master key to encrypt/decrypt helm secrets" | jq -r '.KeyMetadata.Arn')
-    aws kms create-alias --alias-name 'alias/helm-enc-dec-kms-cmk' --target-key-id $KMS_CMK_ARN
+    #alias for CMK
+    CMK_ALIAS="alias/helm-enc-dec-kms-cmk"-$(date +%s)
+    aws kms create-alias --alias-name $CMK_ALIAS --target-key-id $KMS_CMK_ARN
     aws kms enable-key-rotation --key-id $KMS_CMK_ARN
     KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN
     KMS_CMK_ARN_ALIAS="${KMS_CMK_ARN_ALIAS%%:key*}"
-    export KMS_CMK_ARN_ALIAS="$KMS_CMK_ARN_ALIAS:alias/helm-enc-dec-kms-cmk"
+    export KMS_CMK_ARN_ALIAS="$KMS_CMK_ARN_ALIAS:$CMK_ALIAS"
 
     #-------
     echo "The selected k8s cluster dns name is :" $NAME
@@ -351,6 +353,7 @@ echo "export MIN_NODE_COUNT=$MIN_NODE_COUNT"
 echo "export PROM_ADDR=$PROM_ADDR"
 echo "export KMS_CMK_ARN=$KMS_CMK_ARN"
 echo "export KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN_ALIAS"
+echo "export KMS_CMK_ALIAS=$CMK_ALIAS"
 echo "export AM_ADDR=$AM_ADDR"
 echo "export DASHBOARD_ADDR=$DASHBOARD_ADDR"
 echo "export GRAFANA_ADDR=$GRAFANA_ADDR"
@@ -385,6 +388,7 @@ export MASTER_IAM_ROLE=$MASTER_IAM_ROLE
 export MASTER_IAM_ROLE_ARN=$MASTER_IAM_ROLE_ARN
 export KMS_CMK_ARN=$KMS_CMK_ARN
 export KMS_CMK_ARN_ALIAS=$KMS_CMK_ARN_ALIAS
+export KMS_CMK_ALIAS=$CMK_ALIAS
 export GRAFANA_ADDR=$GRAFANA_ADDR
 export DASHBOARD_ADDR=$DASHBOARD_ADDR
 export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT
