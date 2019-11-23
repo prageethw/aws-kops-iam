@@ -97,7 +97,7 @@ kops create cluster \
   --zones $ZONES \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
-  --kubernetes-version v1.11.5 \
+  --kubernetes-version v1.11.9 \
   --ssh-public-key ${SSH_PUBLIC_KEY:-keys/kops/kops.pub} \
   --networking kubenet \
   --authorization RBAC \
@@ -161,7 +161,14 @@ else
     kops replace -f $NAME.yaml
     kops update cluster $NAME --yes
     kops rolling-update cluster ${NAME} --instance-group-roles=Master  --cloudonly --force --yes
-    kops validate cluster
+    #kops validate cluster
+    SUB_SLEEP=30
+    until kops validate cluster $NAME
+    do
+        echo "Cluster is not yet ready. Sleeping for further $SUB_SLEEP secs ..."
+        echo ""
+	sleep $SUB_SLEEP
+    done
 ##############################################################
 #### fix webhook rbac
     kubectl apply -f resources/enable-webhook-rbac.yaml
