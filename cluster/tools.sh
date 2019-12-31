@@ -38,15 +38,16 @@ kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscal
 # kubectl apply -f resources/aws-ca-pdb.yaml
 
 # install external-dns statful service no replicas supported atm
-helm install stable/external-dns --namespace external-dns --name external-dns --version=1.3.0 \
-        --set aws.secretKey=$AWS_SECRET_ACCESS_KEY \
-        --set aws.accessKey=$AWS_ACCESS_KEY_ID \
+helm install stable/external-dns --namespace external-dns --name external-dns --version=2.10.1 \
+        --set aws.credentials.secretKey=$AWS_SECRET_ACCESS_KEY \
+        --set aws.credentials.accessKey=$AWS_ACCESS_KEY_ID \
         --set aws.region=$AWS_DEFAULT_REGION \
         --set rbac.create=true \
         --set txtPrefix=kops- \
         --set policy=sync \
         --set txtOwnerId=kops \
-        --set sources={ingress} \
+        --set sources="{ingress,istio-gateway}" \
+        --set istioIngressGateways={istio-system/istio-ingressgateway} \
         --set resources.limits.cpu="200m",resources.limits.memory="100Mi" 
 kubectl -n external-dns rollout status deployment external-dns
 kubectl apply -f resources/external-dns-pdb.yaml
