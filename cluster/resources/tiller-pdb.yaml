@@ -4,7 +4,7 @@ metadata:
   name: tiller
   namespace: kube-system
 spec:
-  minAvailable: 1
+  minAvailable: 0
   selector:
     matchLabels:
       app: helm
@@ -15,7 +15,7 @@ metadata:
   name: tiller
   namespace: test
 spec:
-  minAvailable: 1
+  minAvailable: 0
   selector:
     matchLabels:
       app: helm
@@ -26,7 +26,7 @@ metadata:
   name: tiller
   namespace: dev
 spec:
-  minAvailable: 1
+  minAvailable: 0
   selector:
     matchLabels:
       app: helm
@@ -37,7 +37,7 @@ metadata:
   name: tiller
   namespace: ops
 spec:
-  minAvailable: 1
+  minAvailable: 0
   selector:
     matchLabels:
       app: helm

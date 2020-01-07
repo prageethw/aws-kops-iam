@@ -4,7 +4,7 @@ metadata:
   name: coredns
   namespace: kube-system
 spec:
-  minAvailable: 1
+  minAvailable: 0
   selector:
     matchLabels:
         k8s-app: kube-dns 

@@ -238,9 +238,10 @@ alertmanagerFiles:
     receivers:
     - name: slack
       slack_configs:
-      - api_url: "https://hooks.slack.com/services/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"
+      - api_url: "https://hooks.slack.com/services/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"
         send_resolved: true
         title: "{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }}" 
         text: "{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}"
         title_link: http://monitor.cluster.prageethw.co/alerts
         icon_emoji: ":prometheus:"
+        

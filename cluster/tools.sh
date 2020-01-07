@@ -126,7 +126,8 @@ helm install stable/grafana \
     --name grafana \
     --namespace metrics \
     --version 1.24.1 \
-    --set replicas=1 \
+    --set replicas=2 \
+    --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
     --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
     --values resources/grafana-values.yml
