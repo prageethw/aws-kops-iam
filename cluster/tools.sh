@@ -38,6 +38,7 @@ kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscal
 # kubectl apply -f resources/aws-ca-pdb.yaml
 
 # install external-dns statful service no replicas supported atm
+# if you enable istio as below you need to intall istio-ingressgateway to make it work else an error thrown.
 helm install stable/external-dns --namespace external-dns --name external-dns --version=2.10.1 \
         --set aws.credentials.secretKey=$AWS_SECRET_ACCESS_KEY \
         --set aws.credentials.accessKey=$AWS_ACCESS_KEY_ID \
