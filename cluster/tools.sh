@@ -111,10 +111,10 @@ kubectl apply -f resources/prometheus-pdb.yaml
 helm install \
     stable/prometheus-adapter \
     --name prometheus-adapter \
-    --version v0.3.0 \
+    --version 2.0.0 \
     --namespace metrics \
     --set rbac.create=true \
-    --set image.tag=v0.3.0 \
+    --set image.tag=v0.5.0 \
     --set metricsRelistInterval=90s \
     --set prometheus.url=http://prometheus-server.metrics.svc \
     --set prometheus.port=80 \
