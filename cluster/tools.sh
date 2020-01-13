@@ -116,7 +116,7 @@ helm install \
     --set rbac.create=true \
     --set image.tag=v0.5.0 \
     --set metricsRelistInterval=90s \
-    --set prometheus.url=http://prometheus-server.metrics.svc \
+    --set prometheus.url="http://prometheus-server.metrics.svc" \
     --set prometheus.port=80 \
     --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
     --values resources/prom-adapter-values.yml
