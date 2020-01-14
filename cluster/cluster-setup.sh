@@ -143,7 +143,7 @@ else
     #prepare auto-scaling labels to temp file.
     cat resources/auto-sacaling-tags.yaml | sed -e 's/NAME/'$NAME'/g' | tee auto-sacaling-tags-temp.yaml
     #patch manifest with autoscaling labels
-    sed -i '' '/role: Node/r resources/auto-sacaling-tags-temp.yaml' $NAME.yaml
+    sed -i '' '/role: Node/r auto-sacaling-tags-temp.yaml' $NAME.yaml
     kops replace -f $NAME.yaml
     kops update cluster $NAME --yes
     #create name spaces
@@ -327,20 +327,20 @@ else
 
 ############################################
 
-#####install istio crds to enable external DNS to support istio gateway#######
-
-     echo "installing istio crds "
-     echo ""
-     kubectl apply -f resources/istio-init.yaml
-     echo ""
-
-################################################################
-
 #######install tools ###########################################
 
      echo "installing required tools"
      echo ""
      sh tools.sh
+     echo ""
+
+################################################################
+
+#####install istio crds to enable external DNS to support istio gateway#######
+
+     echo "installing istio crds "
+     echo ""
+     kubectl apply -f resources/istio-init.yaml
      echo ""
 
 ################################################################
