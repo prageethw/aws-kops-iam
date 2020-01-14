@@ -16,7 +16,7 @@ helm repo update
 helm install stable/cluster-autoscaler \
     --name aws-cluster-autoscaler \
     --namespace aws-cluster-autoscaler \
-    --version 0.11.0 \
+    --version 6.2.0 \
     --set autoDiscovery.clusterName=$NAME \
     --set awsRegion=$AWS_DEFAULT_REGION \
     --set sslCertPath=/etc/kubernetes/pki/ca.crt \
@@ -55,7 +55,7 @@ kubectl apply -f resources/external-dns-pdb.yaml
 kubectl apply -f resources/external-dns-hpa.yaml
 
 #install dashboard  for k8s cluster needs to run in kube-system
-helm install stable/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system --version=0.10.2 \
+helm install stable/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system --version=1.10.1 \
                      --set ingress.enabled=true \
                      --set ingress.hosts[0]=$DASHBOARD_ADDR \
                      --set service.externalPort=8080 \
@@ -68,7 +68,7 @@ kubectl apply -f resources/kube-dashboard-pdb.yaml
 # install metrics server runs on all nodes
 helm install stable/metrics-server \
     --name metrics-server \
-    --version 2.3.0 \
+    --version 2.9.0 \
     --set replicas=2 \
     --namespace metrics \
     --set args={"--kubelet-insecure-tls=true,--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP"} \
@@ -86,7 +86,7 @@ kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 helm install stable/prometheus \
     --name prometheus \
     --namespace metrics \
-    --version 8.4.3 \
+    --version 9.7.5 \
     --set server.ingress.hosts={$PROM_ADDR} \
     --set alertmanager.ingress.hosts={$AM_ADDR} \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-type"=basic \
@@ -116,7 +116,7 @@ helm install \
     --set rbac.create=true \
     --set image.tag=v0.5.0 \
     --set metricsRelistInterval=90s \
-    --set prometheus.url="http://prometheus-server.metrics.svc" \
+    --set prometheus.url=http://prometheus-server.metrics.svc \
     --set prometheus.port=80 \
     --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
     --values resources/prom-adapter-values.yml
@@ -126,7 +126,7 @@ kubectl -n metrics rollout status deployment prometheus-adapter
 helm install stable/grafana \
     --name grafana \
     --namespace metrics \
-    --version 1.24.1 \
+    --version 4.3.0 \
     --set replicas=1 \
     --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \

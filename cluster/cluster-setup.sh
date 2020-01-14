@@ -97,7 +97,7 @@ kops create cluster \
   --zones $ZONES \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
-  --kubernetes-version v1.15.0 \
+  --kubernetes-version v1.15.7 \
   --ssh-public-key ${SSH_PUBLIC_KEY:-keys/kops/kops.pub} \
   --networking kubenet \
   --authorization RBAC \
