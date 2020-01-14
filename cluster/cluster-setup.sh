@@ -327,6 +327,15 @@ else
 
 ############################################
 
+#####install istio crds to enable external DNS to support istio gateway#######
+
+     echo "installing istio crds "
+     echo ""
+     kubectl apply -f resources/istio-init.yaml
+     echo ""
+
+################################################################
+
 #######install tools ###########################################
 
      echo "installing required tools"
