@@ -1,3 +1,4 @@
   cloudLabels:
     k8s.io/cluster-autoscaler/enabled: "true"
-    kubernetes.io/cluster/prageethw.co.k8s.local: "true"
+    k8s.io/cluster-autoscaler/NAME: "true"
+    kubernetes.io/cluster/NAME: "true"

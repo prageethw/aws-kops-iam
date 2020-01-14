@@ -140,8 +140,10 @@ else
         echo ""
 	sleep $SUB_SLEEP
     done
+    #prepare auto-scaling labels to temp file.
+    cat resources/auto-sacaling-tags.yaml | sed -e 's/NAME/'$NAME'/g' | tee auto-sacaling-tags-temp.yaml
     #patch manifest with autoscaling labels
-    sed -i '' '/role: Node/r resources/auto-sacaling-tags.yaml' $NAME.yaml
+    sed -i '' '/role: Node/r resources/auto-sacaling-tags-temp.yaml' $NAME.yaml
     kops replace -f $NAME.yaml
     kops update cluster $NAME --yes
     #create name spaces
