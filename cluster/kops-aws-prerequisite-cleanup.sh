@@ -69,6 +69,6 @@ aws iam delete-group --group-name kops
 rm -rf config
 rm -rf k8s*
 rm -rf keys
-rm -rf *-temp.yaml
+rm -rf *.temp.yaml
 
 ##############################

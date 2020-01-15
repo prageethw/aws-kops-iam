@@ -113,6 +113,7 @@ helm install \
     --name prometheus-adapter \
     --version 2.0.0 \
     --namespace metrics \
+    --set logLevel=4 \
     --set rbac.create=true \
     --set image.tag=v0.5.0 \
     --set metricsRelistInterval=90s \
