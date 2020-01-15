@@ -13,16 +13,16 @@ rules:
   - seriesQuery: 'nginx_ingress_controller_requests'
     resources:
       overrides:
-        namespace: {resource: "namespace"}
+        namespace: {resource: "namespace"} # here prometheus results (for http_req_per_second metrics ) namespace to be replace by k8s resource namespace.
         ingress: {resource: "ingress"}
     name:
       as: "http_req_per_second_per_replica"
     metricsQuery: 'sum(rate(<<.Series>>{<<.LabelMatchers>>}[5m])) by (<<.GroupBy>>) / sum(label_join(kube_deployment_status_replicas, "ingress", ",", "deployment")) by (<<.GroupBy>>)'
-  - seriesQuery: 'http_requests_total'
-    resources:
-      overrides:
-        kubernetes_namespace: {resource: "namespace"}
-        kubernetes_name: {resource: "deployment"}
-    name:
-      as: "http_req_rate"
-    metricsQuery: 'sum(<<.Series>>) by (<<.GroupBy>>)'
+  # - seriesQuery: 'http_requests_total'
+  #   resources:
+  #     overrides:
+  #       kubernetes_namespace: {resource: "namespace"}
+  #       kubernetes_name: {resource: "deployment"}
+  #   name:
+  #     as: "http_req_rate"
+  #   metricsQuery: 'sum(<<.Series>>) by (<<.GroupBy>>)'
