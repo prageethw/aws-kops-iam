@@ -82,6 +82,7 @@ kubectl apply -f resources/metrics-server-pdb.yaml
 #enable basic auth
 htpasswd -c -b  ./keys/auth sysops $BASIC_AUTH_PWD
 kubectl create secret generic sysops --from-file ./keys/auth -n metrics
+kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 
 helm install stable/prometheus \
     --name prometheus \
