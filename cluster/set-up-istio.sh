@@ -63,5 +63,12 @@ data:
   passphrase: $KIALI_PASSPHRASE
 EOF
 
+# create ingress for add-ons
+cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFANA_ADDR@$MESH_GRAFANA_ADDR@g; \
+                                                                   s@MESH_PROM_ADDR@$MESH_PROM_ADDR@g; \
+                                                                   s@MESH_KIALI_ADDR@$MESH_KIALI_ADDR@g; \
+                                                                   s@MESH_JAEGER_ADDR@$MESH_JAEGER_ADDR@g" | \
+                                                                   tee istio-add-ons-using-nginx-ingress.temp.yaml
+kubectl apply -f istio-add-ons-using-nginx-ingress.temp.yaml
 # delete istio
 # kubectl delete -f istio-demo-profile.yaml

@@ -220,6 +220,11 @@ else
     export AM_ADDR=alertmanager.cluster.$DOMAIN_NAME
     export GRAFANA_ADDR=grafana.cluster.$DOMAIN_NAME
     export DASHBOARD_ADDR=kubernetes-dashboard.cluster.$DOMAIN_NAME
+    export MESH_GRAFANA_ADDR=mesh-grafana.cluster.$DOMAIN_NAME
+    export MESH_PROM_ADDR=mesh-monitor.cluster.$DOMAIN_NAME
+    export MESH_KIALI_ADDR=mesh-kiali.cluster.$DOMAIN_NAME
+    export MESH_JAEGER_ADDR=mesh-jaeger.cluster.$DOMAIN_NAME
+
 
     ELB_INIT_SLEEP=60
     echo "Waiting $ELB_INIT_SLEEP sec for ELB to become available..."
@@ -382,6 +387,10 @@ echo "export AM_ADDR=$AM_ADDR"
 echo "export DASHBOARD_ADDR=$DASHBOARD_ADDR"
 echo "export GRAFANA_ADDR=$GRAFANA_ADDR"
 echo "export MAX_NODE_COUNT=$NODE_COUNT"
+echo "export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR"
+echo "export MESH_PROM_ADDR=$MESH_PROM_ADDR"
+echo "export MESH_KIALI_ADDR=$MESH_KIALI_ADDR"
+echo "export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR"
 echo ""
 echo "------------------------------------------"
 echo ""
@@ -416,8 +425,12 @@ export KMS_CMK_ALIAS=$CMK_ALIAS
 export GRAFANA_ADDR=$GRAFANA_ADDR
 export DASHBOARD_ADDR=$DASHBOARD_ADDR
 export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT
-export KOPS_STATE_STORE=$KOPS_STATE_STORE" \
-    >k8s-kops-cluster.temp
+export KOPS_STATE_STORE=$KOPS_STATE_STORE
+export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR
+export MESH_PROM_ADDR=$MESH_PROM_ADDR
+export MESH_KIALI_ADDR=$MESH_KIALI_ADDR
+export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR" \
+                                 >k8s-kops-cluster.temp
 
 ########################################################################
 
