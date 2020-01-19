@@ -330,6 +330,14 @@ else
 
 ############################################
 
+#####install istio crds to enable external DNS to support istio gateway#######
+     echo "installing istio crds "
+     echo ""
+     kubectl apply -f resources/istio/base/istio-crds.yaml
+     echo ""
+
+################################################################
+
 #######install tools ###########################################
 
      echo "installing required tools"
@@ -339,13 +347,6 @@ else
 
 ################################################################
 
-#####install istio crds to enable external DNS to support istio gateway#######
-     echo "installing istio crds "
-     echo ""
-     kubectl apply -f resources/istio/base/istio-crds.yaml
-     echo ""
-
-################################################################
     if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
         ./set-up-istio.sh
     fi
