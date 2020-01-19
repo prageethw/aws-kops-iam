@@ -8,6 +8,3 @@ fi
 cd cluster
 ./kops-aws-prerequisite.sh
 ./cluster-setup.sh
-if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
-./set-up-istio.sh
-fi

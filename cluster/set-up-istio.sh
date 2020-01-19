@@ -12,7 +12,16 @@ if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
 fi
 # apply crds to k8s
 kubectl apply -f resources/istio/base/istio-crds.yaml
-sleep 60
+
+ISTIO_INIT_SLEEP=60
+echo "Waiting $ISTIO_INIT_SLEEP sec for ISTIO CRDS to become available..."
+echo "count down is ..."
+while [ $ELB_INIT_SLEEP -gt 0 ]; do
+    echo -ne "$ISTIO_INIT_SLEEP\033[0K\r" 
+    sleep 1
+    : $((ISTIO_INIT_SLEEP--))
+done
+
 # validate installation success
 istioctl verify-install -f resources/istio/base/istio-crds.yaml
 # apply  customised demo profile to k8s not use of kustomize here
