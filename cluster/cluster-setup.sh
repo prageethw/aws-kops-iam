@@ -313,9 +313,9 @@ else
     #tag instances so kubernetes can figure it out 
     for ID in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query AutoScalingGroups[].Instances[].InstanceId --output text);
     do
-       aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
-                                                   Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true \
-                                                   Key=k8s.io/cluster-autoscaler/$NAME,Value=true,PropagateAtLaunch=true
+       aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true \
+                                                   Key=kubernetes.io/cluster/$NAME,Value=true \
+                                                   Key=k8s.io/cluster-autoscaler/$NAME,Value=true
     done
     #tag the group incase
     aws autoscaling \
@@ -340,13 +340,15 @@ else
 ################################################################
 
 #####install istio crds to enable external DNS to support istio gateway#######
-
      echo "installing istio crds "
      echo ""
-     kubectl apply -f resources/istio-init.yaml
+     kubectl apply -f resources/istio/base/istio-crds.yaml
      echo ""
 
 ################################################################
+    if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
+        ./set-up-istio.sh
+    fi
 
 fi
 
