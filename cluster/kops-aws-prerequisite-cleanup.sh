@@ -70,5 +70,6 @@ rm -rf config
 rm -rf k8s*
 rm -rf keys
 rm -rf *.temp.yaml
+rm -rf istio-install-*
 
 ##############################

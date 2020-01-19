@@ -8,3 +8,4 @@ fi
 cd cluster
 ./kops-aws-prerequisite.sh
 ./cluster-setup.sh
+./set-up-istio.sh

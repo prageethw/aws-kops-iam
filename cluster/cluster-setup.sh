@@ -313,14 +313,17 @@ else
     #tag instances so kubernetes can figure it out 
     for ID in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query AutoScalingGroups[].Instances[].InstanceId --output text);
     do
-       aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true Key=kubernetes.io/cluster/$NAME,Value=true
+       aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
+                                                   Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true \
+                                                   Key=k8s.io/cluster-autoscaler/$NAME,Value=true,PropagateAtLaunch=true
     done
-    #tag tge group incase
+    #tag the group incase
     aws autoscaling \
     create-or-update-tags \
     --tags \
     ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
-    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true
+    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true \
+    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/$NAME,Value=true,PropagateAtLaunch=true
     
     #set min,max,desired numbers nodes for k8s cluster
     aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --desired-capacity ${DESIRED_NODE_COUNT:-2} --min-size  ${MIN_NODE_COUNT:-2}  --max-size ${NODE_COUNT:-5}
