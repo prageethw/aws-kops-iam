@@ -10,6 +10,8 @@ This repo contains files that will help you to point to a K8s cluster using Kops
 4. Create a AWS account with admin rights.
 5. IAM authenticator.
 6. kops 1.10.0 till [issue](https://github.com/kubernetes/kops/pull/6201) fixed.
+7. Kustomize
+8. Istioctl
 
 ## 1. set k8s cluster
 
