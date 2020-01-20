@@ -70,5 +70,3 @@ cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFAN
                                                                    s@MESH_JAEGER_ADDR@$MESH_JAEGER_ADDR@g" | \
                                                                    tee istio-add-ons-using-nginx-ingress.temp.yaml
 kubectl apply -f istio-add-ons-using-nginx-ingress.temp.yaml
-# delete istio
-# kubectl delete -f istio-demo-profile.yaml
