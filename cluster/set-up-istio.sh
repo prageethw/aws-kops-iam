@@ -33,6 +33,8 @@ kubectl -n istio-system rollout status  deployments istio-ingressgateway
 kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 # validate installation success
 istioctl verify-install -f istio-install-demo-profile.yaml
+# apply hpa for istio objects
+kubectl apply -f resources/istio-hpa.yaml
 
 # enable namespaces to deploy sidecards
 kubectl label namespace ops \
