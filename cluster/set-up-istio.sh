@@ -8,6 +8,8 @@ if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
                             --set values.kiali.createDemoSecret=false \
                             --set values.kiali.dashboard.grafanaURL="http://grafana:3000" \
                             --set values.kiali.dashboard.jaegerURL="http://jaeger-query:16686" \
+                            --set values.global.proxy.resources.limits.memory="500mi" \
+                            --set values.global.proxy.resources.limits.cpu="1000m" \
                             >>resources/istio/base/istio-demo-profile.yaml
     # apply new crds to k8s
     kubectl apply -f resources/istio/base/istio-crds.yaml
