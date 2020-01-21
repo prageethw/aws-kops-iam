@@ -61,7 +61,7 @@ helm install stable/kubernetes-dashboard --name kubernetes-dashboard --namespace
                      --set service.externalPort=8080 \
                      --set service.internalPort=8080 \
                      --set enableInsecureLogin=true \
-                     --set replicaCount=2 
+                     --set replicaCount=2
 kubectl -n kube-system rollout status deployment kubernetes-dashboard
 kubectl apply -f resources/kube-dashboard-pdb.yaml
 
