@@ -1,6 +1,6 @@
 #!/bin/bash
 helm repo update
-#install ingress
+# install ingress
 # helm install stable/nginx-ingress --name nginx-ingress --namespace nginx-ingress \
 #             --set controller.service.enableHttp=true \
 #             --set controller.stats.enabled=true \
@@ -54,7 +54,7 @@ kubectl -n external-dns rollout status deployment external-dns
 kubectl apply -f resources/external-dns-pdb.yaml
 kubectl apply -f resources/external-dns-hpa.yaml
 
-#install dashboard  for k8s cluster needs to run in kube-system
+# install dashboard  for k8s cluster needs to run in kube-system
 helm install stable/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system --version=1.10.1 \
                      --set ingress.enabled=true \
                      --set ingress.hosts[0]=$DASHBOARD_ADDR \
@@ -73,16 +73,17 @@ helm install stable/metrics-server \
     --namespace metrics \
     --set args={"--kubelet-insecure-tls=true,--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP"} \
     --set resources.limits.cpu="100m",resources.limits.memory="50Mi"
-#--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP
+# --kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP
 kubectl -n metrics rollout status deployment metrics-server
 kubectl apply -f resources/metrics-server-hpa.yaml
 kubectl apply -f resources/metrics-server-pdb.yaml
 
 # install monitoring and alerting tools
-#enable basic auth
+# enable basic auth
 htpasswd -c -b  ./keys/auth sysops $BASIC_AUTH_PWD
 kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 
+#leave this as 1 replicas to make stats valid as much as it could.
 helm install stable/prometheus \
     --name prometheus \
     --namespace metrics \
@@ -104,10 +105,10 @@ kubectl -n metrics rollout status statefulset prometheus-alertmanager
 kubectl -n metrics rollout status statefulset prometheus-server
 kubectl apply -f resources/prometheus-pdb.yaml
 
-#validate basic auth with
+# validate basic auth with
 # curl -v -u sysops:$BASIC_AUTH_PWD https://$PROM_ADDR
 
-#install prom adaptor for prom integration with k8s metrics server
+# install prom adaptor for prom integration with k8s metrics server
 helm install \
     stable/prometheus-adapter \
     --name prometheus-adapter \
@@ -122,13 +123,16 @@ helm install \
     --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
     --values resources/prom-adapter-values.yml
 kubectl -n metrics rollout status deployment prometheus-adapter
+kubectl apply -f resources/prom-adapter-hpa.yaml
+kubectl apply -f resources/prom-adapter-pdb.yaml
 
 # install grafana
 helm install stable/grafana \
     --name grafana \
     --namespace metrics \
     --version 4.3.0 \
-    --set replicas=1 \
+    --set persistence.type="statefulset" \
+    --set persistence.size="5Gi"
     --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
     --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
