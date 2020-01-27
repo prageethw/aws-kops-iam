@@ -28,6 +28,9 @@ done
 istioctl verify-install -f resources/istio/base/istio-crds.yaml
 # apply  customised demo profile to k8s not use of kustomize here
 kustomize build resources/istio/overlays | sed -e "s@ARN@$AWS_SSL_CERT_ARN@g" >istio-install-demo-profile.yaml
+#patch to include server_name: kubernetes in manifest. KOPS patch
+sed -i '' '/ca_file: \/var\/run\/secrets\/kubernetes.io\/serviceaccount\/ca.crt/a\'$'\n''\        server_name: kubernetes\'$'\n''' \
+        istio-install-demo-profile.yaml
 kubectl apply -f istio-install-demo-profile.yaml
 kubectl -n istio-system rollout status  deployments istio-pilot
 kubectl -n istio-system rollout status  deployments istio-ingressgateway
