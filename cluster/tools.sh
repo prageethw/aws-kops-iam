@@ -87,7 +87,7 @@ kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 helm install stable/prometheus \
     --name prometheus \
     --namespace metrics \
-    --version 10.3.1 \
+    --version 9.7.5 \
     --set server.ingress.hosts={$PROM_ADDR} \
     --set alertmanager.ingress.hosts={$AM_ADDR} \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-type"=basic \
@@ -118,7 +118,7 @@ helm install \
     --set rbac.create=true \
     --set image.tag=v0.5.0 \
     --set metricsRelistInterval=90s \
-    --set prometheus.url=http://prometheus-server.istio-system.svc \
+    --set prometheus.url=http://prometheus.istio-system.svc \
     --set prometheus.port=9090 \
     --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
     --values resources/prom-adapter-values.yml
