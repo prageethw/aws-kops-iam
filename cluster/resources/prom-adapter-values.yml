@@ -1,3 +1,4 @@
+# note this is adopter pointing istio prometheus I found some difference between this and helm installed one.
 metricsRelistInterval: 90s
 rules:
   default: false
@@ -5,16 +6,18 @@ rules:
   - seriesQuery: 'nginx_ingress_controller_requests'
     resources:
       overrides:
-        namespace: {resource: "namespace"}
         ingress: {resource: "ingress"}
+        # Note: please try out changing exported_namespace to namespace if this does not work
+        exported_namespace: {resource: "namespace"}
     name:
       as: "http_req_per_second"
     metricsQuery: 'sum(rate(<<.Series>>{<<.LabelMatchers>>}[5m])) by (<<.GroupBy>>)'
   - seriesQuery: 'nginx_ingress_controller_requests'
     resources:
       overrides:
-        namespace: {resource: "namespace"} # here prometheus results (for http_req_per_second metrics ) namespace to be replace by k8s resource namespace.
         ingress: {resource: "ingress"}
+        # Note: please try out changing exported_namespace to namespace if this does not work
+        exported_namespace: {resource: "namespace"} # here prometheus results (for nginx_ingress_controller_requests metrics ) exported_namespace to be replace by k8s resource namespace.
     name:
       as: "http_req_per_second_per_replica"
     metricsQuery: 'sum(rate(<<.Series>>{<<.LabelMatchers>>}[5m])) by (<<.GroupBy>>) / sum(label_join(kube_deployment_status_replicas, "ingress", ",", "deployment")) by (<<.GroupBy>>)'

@@ -87,7 +87,7 @@ kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 helm install stable/prometheus \
     --name prometheus \
     --namespace metrics \
-    --version 9.7.5 \
+    --version 10.3.1 \
     --set server.ingress.hosts={$PROM_ADDR} \
     --set alertmanager.ingress.hosts={$AM_ADDR} \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-type"=basic \
@@ -108,7 +108,7 @@ kubectl apply -f resources/prometheus-pdb.yaml
 # validate basic auth with
 # curl -v -u sysops:$BASIC_AUTH_PWD https://$PROM_ADDR
 
-# install prom adaptor for prom integration with k8s metrics server
+# install prom adaptor for prom integration with k8s metrics server, note pointing to istio prom.
 helm install \
     stable/prometheus-adapter \
     --name prometheus-adapter \
@@ -118,10 +118,11 @@ helm install \
     --set rbac.create=true \
     --set image.tag=v0.5.0 \
     --set metricsRelistInterval=90s \
-    --set prometheus.url=http://prometheus-server.metrics.svc \
-    --set prometheus.port=80 \
+    --set prometheus.url=http://prometheus-server.istio-system.svc \
+    --set prometheus.port=9090 \
     --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
     --values resources/prom-adapter-values.yml
+    # --set prometheus.url=http://prometheus-server.metrics.svc --set prometheus.port=80
 kubectl -n metrics rollout status deployment prometheus-adapter
 kubectl apply -f resources/prom-adapter-hpa.yaml
 kubectl apply -f resources/prom-adapter-pdb.yaml
