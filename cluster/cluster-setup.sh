@@ -190,7 +190,9 @@ else
 #### install helm if required ####
 
     if [[ ! -z "${USE_HELM}" ]]; then
-        kubectl create -f resources/tiller-rbac.yml --record --save-config
+        helm repo add stable https://kubernetes-charts.storage.googleapis.com
+        helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+        kubectl apply -f resources/tiller-rbac.yml 
         helm init --service-account tiller
         helm init --service-account tiller-dev --tiller-namespace dev
         helm init --service-account tiller-test --tiller-namespace test 
