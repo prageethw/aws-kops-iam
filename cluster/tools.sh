@@ -120,7 +120,7 @@ helm install \
     --set metricsRelistInterval=90s \
     --set prometheus.url=http://prometheus.istio-system.svc \
     --set prometheus.port=9090 \
-    --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
+    --set resources.limits.cpu="150m",resources.limits.memory="300Mi" \
     --values resources/prom-adapter-values.yml
     # --set prometheus.url=http://prometheus-server.metrics.svc --set prometheus.port=80
 kubectl -n metrics rollout status deployment prometheus-adapter
@@ -140,3 +140,17 @@ helm install stable/grafana \
     --values resources/grafana-values.yml
 kubectl -n metrics rollout status deployment grafana
 kubectl  apply -f resources/grafana-pdb.yaml
+
+# kube-metrics adapter is a general purpose prom adaptor seems less complicated than prometheus-adapter
+# Note: this chart is not from official repo
+# helm install \
+#     banzaicloud-stable/kube-metrics-adapter \
+#     --name kube-metrics-adapter \
+#     --version 0.0.5 \
+#     --namespace metrics \
+#     --set logLevel=1 \
+#     --set rbac.create=true \
+#     --set prometheus.url=http://prometheus.istio-system.svc:9090 \
+#     --set resources.limits.cpu="150m",resources.limits.memory="300Mi"
+# kubectl apply -f resources/kube-metrics-adapter-hpa.yaml
+# kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
