@@ -46,13 +46,3 @@ spec:
       app: prometheus
       component: server
 ---
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
-metadata:
-  name: prometheus-adapter
-  namespace: metrics
-spec:
-  minAvailable: 0
-  selector:
-    matchLabels:
-      app: prometheus-adapter

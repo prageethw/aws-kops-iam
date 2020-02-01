@@ -1,6 +1,6 @@
 #!/bin/bash
 helm repo update
-#install ingress
+# install ingress
 # helm install stable/nginx-ingress --name nginx-ingress --namespace nginx-ingress \
 #             --set controller.service.enableHttp=true \
 #             --set controller.stats.enabled=true \
@@ -54,14 +54,14 @@ kubectl -n external-dns rollout status deployment external-dns
 kubectl apply -f resources/external-dns-pdb.yaml
 kubectl apply -f resources/external-dns-hpa.yaml
 
-#install dashboard  for k8s cluster needs to run in kube-system
+# install dashboard  for k8s cluster needs to run in kube-system
 helm install stable/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system --version=1.10.1 \
                      --set ingress.enabled=true \
                      --set ingress.hosts[0]=$DASHBOARD_ADDR \
                      --set service.externalPort=8080 \
                      --set service.internalPort=8080 \
                      --set enableInsecureLogin=true \
-                     --set replicaCount=2 
+                     --set replicaCount=2
 kubectl -n kube-system rollout status deployment kubernetes-dashboard
 kubectl apply -f resources/kube-dashboard-pdb.yaml
 
@@ -73,16 +73,17 @@ helm install stable/metrics-server \
     --namespace metrics \
     --set args={"--kubelet-insecure-tls=true,--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP"} \
     --set resources.limits.cpu="100m",resources.limits.memory="50Mi"
-#--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP
+# --kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP
 kubectl -n metrics rollout status deployment metrics-server
 kubectl apply -f resources/metrics-server-hpa.yaml
 kubectl apply -f resources/metrics-server-pdb.yaml
 
 # install monitoring and alerting tools
-#enable basic auth
+# enable basic auth
 htpasswd -c -b  ./keys/auth sysops $BASIC_AUTH_PWD
 kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 
+#leave this as 1 replicas to make stats valid as much as it could.
 helm install stable/prometheus \
     --name prometheus \
     --namespace metrics \
@@ -104,34 +105,53 @@ kubectl -n metrics rollout status statefulset prometheus-alertmanager
 kubectl -n metrics rollout status statefulset prometheus-server
 kubectl apply -f resources/prometheus-pdb.yaml
 
-#validate basic auth with
+# validate basic auth with
 # curl -v -u sysops:$BASIC_AUTH_PWD https://$PROM_ADDR
 
-#install prom adaptor for prom integration with k8s metrics server
-helm install \
-    stable/prometheus-adapter \
-    --name prometheus-adapter \
-    --version 2.0.0 \
-    --namespace metrics \
-    --set logLevel=4 \
-    --set rbac.create=true \
-    --set image.tag=v0.5.0 \
-    --set metricsRelistInterval=90s \
-    --set prometheus.url=http://prometheus-server.metrics.svc \
-    --set prometheus.port=80 \
-    --set resources.limits.cpu="100m",resources.limits.memory="100Mi" \
-    --values resources/prom-adapter-values.yml
-kubectl -n metrics rollout status deployment prometheus-adapter
+# install prom adaptor for prom integration with k8s metrics server, note pointing to istio prom.
+# helm install \
+#     stable/prometheus-adapter \
+#     --name prometheus-adapter \
+#     --version 2.0.0 \
+#     --namespace metrics \
+#     --set logLevel=4 \
+#     --set rbac.create=true \
+#     --set image.tag=v0.5.0 \
+#     --set metricsRelistInterval=90s \
+#     --set prometheus.url=http://prometheus.istio-system.svc \
+#     --set prometheus.port=9090 \
+#     --set resources.limits.cpu="150m",resources.limits.memory="300Mi" \
+#     --values resources/prom-adapter-values.yml
+#     # --set prometheus.url=http://prometheus-server.metrics.svc --set prometheus.port=80
+# kubectl -n metrics rollout status deployment prometheus-adapter
+# kubectl apply -f resources/prom-adapter-hpa.yaml
+# kubectl apply -f resources/prom-adapter-pdb.yaml
 
 # install grafana
 helm install stable/grafana \
     --name grafana \
     --namespace metrics \
     --version 4.3.0 \
-    --set replicas=1 \
+    --set persistence.type="statefulset" \
+    --set persistence.size="5Gi" \
     --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
     --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
     --values resources/grafana-values.yml
 kubectl -n metrics rollout status deployment grafana
 kubectl  apply -f resources/grafana-pdb.yaml
+
+# kube-metrics adapter is a general purpose prom adaptor seems less complicated than prometheus-adapter
+# Note: this chart is not from official repo
+helm install \
+    banzaicloud-stable/kube-metrics-adapter \
+    --name kube-metrics-adapter \
+    --version 0.0.5 \
+    --namespace metrics \
+    --set logLevel=1 \
+    --set rbac.create=true \
+    --set prometheus.url=http://prometheus.istio-system.svc:9090 \
+    --set resources.limits.cpu="150m",resources.limits.memory="300Mi"
+kubectl -n metrics rollout status deployment kube-metrics-adapter
+kubectl apply -f resources/kube-metrics-adapter-hpa.yaml
+kubectl apply -f resources/kube-metrics-adapter-pdb.yaml

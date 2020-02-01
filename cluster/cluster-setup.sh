@@ -97,7 +97,7 @@ kops create cluster \
   --zones $ZONES \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
-  --kubernetes-version v1.15.7 \
+  --kubernetes-version v1.15.9 \
   --ssh-public-key ${SSH_PUBLIC_KEY:-keys/kops/kops.pub} \
   --networking kubenet \
   --authorization RBAC \
@@ -190,7 +190,9 @@ else
 #### install helm if required ####
 
     if [[ ! -z "${USE_HELM}" ]]; then
-        kubectl create -f resources/tiller-rbac.yml --record --save-config
+        helm repo add stable https://kubernetes-charts.storage.googleapis.com
+        helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+        kubectl apply -f resources/tiller-rbac.yml 
         helm init --service-account tiller
         helm init --service-account tiller-dev --tiller-namespace dev
         helm init --service-account tiller-test --tiller-namespace test 
@@ -220,6 +222,11 @@ else
     export AM_ADDR=alertmanager.cluster.$DOMAIN_NAME
     export GRAFANA_ADDR=grafana.cluster.$DOMAIN_NAME
     export DASHBOARD_ADDR=kubernetes-dashboard.cluster.$DOMAIN_NAME
+    export MESH_GRAFANA_ADDR=mesh-grafana.cluster.$DOMAIN_NAME
+    export MESH_PROM_ADDR=mesh-monitor.cluster.$DOMAIN_NAME
+    export MESH_KIALI_ADDR=mesh-kiali.cluster.$DOMAIN_NAME
+    export MESH_JAEGER_ADDR=mesh-jaeger.cluster.$DOMAIN_NAME
+
 
     ELB_INIT_SLEEP=60
     echo "Waiting $ELB_INIT_SLEEP sec for ELB to become available..."
@@ -313,19 +320,30 @@ else
     #tag instances so kubernetes can figure it out 
     for ID in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query AutoScalingGroups[].Instances[].InstanceId --output text);
     do
-       aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true Key=kubernetes.io/cluster/$NAME,Value=true
+       aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true \
+                                                   Key=kubernetes.io/cluster/$NAME,Value=true \
+                                                   Key=k8s.io/cluster-autoscaler/$NAME,Value=true
     done
-    #tag tge group incase
+    #tag the group incase
     aws autoscaling \
     create-or-update-tags \
     --tags \
     ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
-    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true
+    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true \
+    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/$NAME,Value=true,PropagateAtLaunch=true
     
     #set min,max,desired numbers nodes for k8s cluster
     aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --desired-capacity ${DESIRED_NODE_COUNT:-2} --min-size  ${MIN_NODE_COUNT:-2}  --max-size ${NODE_COUNT:-5}
 
 ############################################
+
+#####install istio crds to enable external DNS to support istio gateway#######
+     echo "installing istio crds "
+     echo ""
+     kubectl apply -f resources/istio/base/istio-crds.yaml
+     echo ""
+
+################################################################
 
 #######install tools ###########################################
 
@@ -336,14 +354,9 @@ else
 
 ################################################################
 
-#####install istio crds to enable external DNS to support istio gateway#######
-
-     echo "installing istio crds "
-     echo ""
-     kubectl apply -f resources/istio-init.yaml
-     echo ""
-
-################################################################
+    if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
+        ./set-up-istio.sh
+    fi
 
 fi
 
@@ -376,6 +389,10 @@ echo "export AM_ADDR=$AM_ADDR"
 echo "export DASHBOARD_ADDR=$DASHBOARD_ADDR"
 echo "export GRAFANA_ADDR=$GRAFANA_ADDR"
 echo "export MAX_NODE_COUNT=$NODE_COUNT"
+echo "export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR"
+echo "export MESH_PROM_ADDR=$MESH_PROM_ADDR"
+echo "export MESH_KIALI_ADDR=$MESH_KIALI_ADDR"
+echo "export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR"
 echo ""
 echo "------------------------------------------"
 echo ""
@@ -410,8 +427,12 @@ export KMS_CMK_ALIAS=$CMK_ALIAS
 export GRAFANA_ADDR=$GRAFANA_ADDR
 export DASHBOARD_ADDR=$DASHBOARD_ADDR
 export DESIRED_NODE_COUNT=$DESIRED_NODE_COUNT
-export KOPS_STATE_STORE=$KOPS_STATE_STORE" \
-    >k8s-kops-cluster.temp
+export KOPS_STATE_STORE=$KOPS_STATE_STORE
+export MESH_GRAFANA_ADDR=$MESH_GRAFANA_ADDR
+export MESH_PROM_ADDR=$MESH_PROM_ADDR
+export MESH_KIALI_ADDR=$MESH_KIALI_ADDR
+export MESH_JAEGER_ADDR=$MESH_JAEGER_ADDR" \
+                                 >k8s-kops-cluster.temp
 
 ########################################################################
 
