@@ -138,7 +138,7 @@ helm install stable/grafana \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
     --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
     --values resources/grafana-values.yml
-kubectl -n metrics rollout status deployment grafana
+kubectl -n metrics rollout status statefulset grafana
 kubectl  apply -f resources/grafana-pdb.yaml
 
 # kube-metrics adapter is a general purpose prom adaptor seems less complicated than prometheus-adapter
@@ -150,8 +150,11 @@ helm install \
     --namespace metrics \
     --set logLevel=1 \
     --set rbac.create=true \
+    --set aws.enable=true \
     --set prometheus.url=http://prometheus.istio-system.svc:9090 \
-    --set resources.limits.cpu="150m",resources.limits.memory="300Mi"
+    --set resources.limits.cpu="150m",resources.limits.memory="300Mi"\
+    --set image.repository=registry.opensource.zalan.do/teapot/kube-metrics-adapter \
+    --set image.tag=v0.1.0
 kubectl -n metrics rollout status deployment kube-metrics-adapter
 kubectl apply -f resources/kube-metrics-adapter-hpa.yaml
 kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
