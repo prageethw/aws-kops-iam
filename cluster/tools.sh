@@ -158,3 +158,14 @@ helm install \
 kubectl -n metrics rollout status deployment kube-metrics-adapter
 kubectl apply -f resources/kube-metrics-adapter-hpa.yaml
 kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
+
+# install flagger
+helm upgrade -i flagger flagger-stable/flagger \
+    --version 0.23.0 \
+    --namespace=metrics \
+    --set crd.create=true \
+    --set meshProvider=istio
+kubectl -n metrics rollout status deployment flagger
+kubectl apply -f resources/flagger-hpa.yaml
+kubectl apply -f resources/flagger-pdb.yaml
+
