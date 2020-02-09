@@ -192,6 +192,7 @@ else
     if [[ ! -z "${USE_HELM}" ]]; then
         helm repo add stable https://kubernetes-charts.storage.googleapis.com
         helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+        helm repo add flagger-stable https://flagger.app
         kubectl apply -f resources/tiller-rbac.yml 
         helm init --service-account tiller
         helm init --service-account tiller-dev --tiller-namespace dev
