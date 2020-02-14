@@ -1,7 +1,7 @@
 if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
     # generate crds
-    istioctl manifest generate --set profile=minimal --set trafficManagement.enabled=false >resources/istio/base/istio-crds.yaml
-    echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml
+    echo "# manifest generated with :" $(istioctl version) > resources/istio/base/istio-crds.yaml
+    istioctl manifest generate --set profile=minimal --set trafficManagement.enabled=false >>resources/istio/base/istio-crds.yaml
     # generate demo profile that gives everything we need in cluster pretty much
     echo "# manifest generated with :" $(istioctl version) > resources/istio/base/istio-demo-profile.yaml
     istioctl manifest generate --set profile=demo \
