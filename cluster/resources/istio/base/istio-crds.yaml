@@ -1,4 +1,3 @@
-# manifest generated with : client version: 1.4.4 control plane version: 1.4.4 data plane version: 1.4.4 (6 proxies)
 # Resources for Base component
 
 apiVersion: rbac.authorization.k8s.io/v1
@@ -5151,3 +5150,4 @@ metadata:
 
 # Tracing component is disabled.
 
+# manifest generated with : 2020-02-20T22:48:32.478042Z warn will use `--remote=false` to retrieve version info due to `no Istio pods in namespace "istio-system"` 1.4.5
