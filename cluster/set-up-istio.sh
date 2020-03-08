@@ -1,18 +1,20 @@
 if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
+    # upgrade istioctl
+    brew upgrade  istioctl
     # generate crds
     istioctl manifest generate --set profile=minimal --set trafficManagement.enabled=false >resources/istio/base/istio-crds.yaml
-    echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml
     # generate demo profile that gives everything we need in cluster pretty much
-    echo "# manifest generated with :" $(istioctl version) > resources/istio/base/istio-demo-profile.yaml
     istioctl manifest generate --set profile=demo \
                             --set values.kiali.createDemoSecret=false \
                             --set values.kiali.dashboard.grafanaURL="http://grafana:3000" \
                             --set values.kiali.dashboard.jaegerURL="http://jaeger-query:16686" \
                             --set values.global.proxy.resources.limits.memory="300Mi" \
                             --set values.global.proxy.resources.limits.cpu="100m" \
-                            >>resources/istio/base/istio-demo-profile.yaml
+                            >resources/istio/base/istio-demo-profile.yaml
     # apply new crds to k8s
     kubectl apply -f resources/istio/base/istio-crds.yaml
+    # ammend with version details
+    echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml
 fi
 
 ISTIO_INIT_SLEEP=60
@@ -28,12 +30,14 @@ done
 istioctl verify-install -f resources/istio/base/istio-crds.yaml
 # apply  customised demo profile to k8s not use of kustomize here
 kustomize build resources/istio/overlays | sed -e "s@ARN@$AWS_SSL_CERT_ARN@g" >istio-install-demo-profile.yaml
-#patch to include server_name: kubernetes in manifest. KOPS patch
+# patch to include server_name: kubernetes in manifest. KOPS patch
 sed -i '' '/ca_file: \/var\/run\/secrets\/kubernetes.io\/serviceaccount\/ca.crt/a\'$'\n''\        server_name: kubernetes\'$'\n''' \
         istio-install-demo-profile.yaml
 kubectl apply -f istio-install-demo-profile.yaml
 kubectl -n istio-system rollout status  deployments istio-pilot
 kubectl -n istio-system rollout status  deployments istio-ingressgateway
+# add version details to the file
+echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-demo-profile.yaml
 # enable basic auth for add-ons (same file used to enable for nginx basic auth)
 kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 # validate installation success
