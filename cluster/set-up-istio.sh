@@ -48,6 +48,8 @@ kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 istioctl verify-install -f istio-install-demo-profile.yaml
 # apply hpa for istio objects
 kubectl apply -f resources/istio-hpa.yaml
+# apply pdb for istio addons
+kubectl apply -f resources/istio-add-on-pdb.yaml
 
 # enable namespaces to deploy sidecards
 kubectl label namespace ops \
