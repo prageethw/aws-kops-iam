@@ -17,8 +17,7 @@ if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
                             >resources/istio/base/istio-demo-profile.yaml
     # apply new crds to k8s
     kubectl apply -f resources/istio/base/istio-crds.yaml
-    # ammend with version details
-    echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml
+
 fi
 
 ISTIO_INIT_SLEEP=60
@@ -40,8 +39,6 @@ sed -i '' '/ca_file: \/var\/run\/secrets\/kubernetes.io\/serviceaccount\/ca.crt/
 kubectl apply -f istio-install-demo-profile.yaml
 kubectl -n istio-system rollout status  deployments istiod
 kubectl -n istio-system rollout status  deployments istio-ingressgateway
-# add version details to the file
-echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-demo-profile.yaml
 # enable basic auth for add-ons (same file used to enable for nginx basic auth)
 kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 # validate installation success
@@ -87,3 +84,7 @@ cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFAN
                                                                    s@MESH_JAEGER_ADDR@$MESH_JAEGER_ADDR@g" | \
                                                                    tee istio-add-ons-using-nginx-ingress.temp.yaml
 kubectl apply -f istio-add-ons-using-nginx-ingress.temp.yaml
+# add version details to the file
+echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-demo-profile.yaml
+# ammend with version details
+echo "# manifest generated with :" $(istioctl version) >> resources/istio/base/istio-crds.yaml

@@ -5786,4 +5786,4 @@ metadata:
 
 # Telemetry component is disabled.
 
-# manifest generated with : 2020-03-09T05:21:26.067162Z warn will use `--remote=false` to retrieve version info due to `no Istio pods in namespace "istio-system"` 1.5.0
+# manifest generated with : client version: 1.5.1 control plane version: 1.5.1 data plane version: 1.5.1 (5 proxies)

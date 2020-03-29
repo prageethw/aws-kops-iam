@@ -12,6 +12,7 @@ This repo contains files that will help you to create a K8s cluster using Kops o
 6. kops 1.10.0 till [issue](https://github.com/kubernetes/kops/pull/6201) fixed.
 7. Kustomize
 8. Istioctl
+9. Mac OS
 
 ## set-up terminal with AWS access details
 
