@@ -3,8 +3,9 @@ if [[ ! -z "${UPDATE_ISTIO_MESH}" ]]; then
     brew upgrade  istioctl
     # generate crds
     istioctl manifest generate --set profile=minimal --set components.pilot.enabled=false >resources/istio/base/istio-crds.yaml
-    # generate demo profile that gives everything we need in cluster pretty much
-    istioctl manifest generate --set profile=demo --set values.global.jwtPolicy=first-party-jwt \
+    # generate demo profile that gives everything we need in cluster pretty much 
+    # --set values.global.jwtPolicy=first-party-jwt if pods hangs due jwt issues
+    istioctl manifest generate --set profile=demo \
                             --set values.kiali.createDemoSecret=false \
                             --set values.global.proxy.resources.limits.memory="300Mi" \
                             --set values.global.proxy.resources.limits.cpu="100m" \

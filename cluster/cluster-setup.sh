@@ -117,8 +117,10 @@ else
     
     # cat manifest-cluster.yaml | sed -e  "s@KOPS_STATE_STORE@$KOPS_STATE_STORE@g" |     tee $NAME.yaml
     cat $NAME.yaml  | sed -e  "s@minSize: $NODE_COUNT@minSize: ${MIN_NODE_COUNT:-2}@g" | tee $NAME.yaml
-    #enable webhook
+    # enable webhook
     sed -i '' '/anonymousAuth: false/r resources/enable-webhook.yaml' $NAME.yaml
+    # enable 3rd party jwt to support istio
+    sed -i '' '/nodes: public/r resources/kops-3rd-party-jwt.yaml' $NAME.yaml
     kops create -f $NAME.yaml
     kops create secret --name $NAME sshpublickey admin -i keys/kops/kops.pub
     kops update cluster $NAME  --yes

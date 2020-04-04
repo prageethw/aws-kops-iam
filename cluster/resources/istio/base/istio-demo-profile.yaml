@@ -14694,7 +14694,7 @@ data:
     deployment:
       accessible_namespaces: ['**']
     login_token:
-      signing_key: "t7QPtetrtL"
+      signing_key: "LQz2lXmDDn"
     server:
       port: 20001
       web_root: /kiali
@@ -15273,7 +15273,7 @@ spec:
         - name: OUTPUT_CERTS
           value: /etc/istio-certs
         - name: JWT_POLICY
-          value: first-party-jwt
+          value: third-party-jwt
         - name: PILOT_CERT_PROVIDER
           value: istiod
         - name: CA_ADDR
@@ -15332,6 +15332,8 @@ spec:
           name: istiod-ca-cert
         - mountPath: /etc/istio/proxy
           name: istio-envoy
+        - mountPath: /var/run/secrets/tokens
+          name: istio-token
         - mountPath: /etc/istio-certs/
           name: istio-certs
       serviceAccountName: prometheus
@@ -15345,6 +15347,14 @@ spec:
       - emptyDir:
           medium: Memory
         name: istio-envoy
+      - name: istio-token
+        projected:
+          defaultMode: 420
+          sources:
+          - serviceAccountToken:
+              audience: istio-ca
+              expirationSeconds: 43200
+              path: istio-token
       - configMap:
           defaultMode: 420
           name: istio-ca-root-cert
@@ -21495,7 +21505,7 @@ spec:
         - --trust-domain=cluster.local
         env:
         - name: JWT_POLICY
-          value: first-party-jwt
+          value: third-party-jwt
         - name: PILOT_CERT_PROVIDER
           value: istiod
         - name: NODE_NAME
@@ -21578,6 +21588,9 @@ spec:
         volumeMounts:
         - mountPath: /var/run/secrets/istio
           name: istiod-ca-cert
+        - mountPath: /var/run/secrets/tokens
+          name: istio-token
+          readOnly: true
         - mountPath: /etc/istio/pod
           name: podinfo
         - mountPath: /etc/istio/egressgateway-certs
@@ -21600,6 +21613,13 @@ spec:
               fieldPath: metadata.annotations
             path: annotations
         name: podinfo
+      - name: istio-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              audience: istio-ca
+              expirationSeconds: 43200
+              path: istio-token
       - name: egressgateway-certs
         secret:
           optional: true
@@ -21774,7 +21794,7 @@ spec:
         - --trust-domain=cluster.local
         env:
         - name: JWT_POLICY
-          value: first-party-jwt
+          value: third-party-jwt
         - name: PILOT_CERT_PROVIDER
           value: istiod
         - name: ISTIO_META_USER_SDS
@@ -21871,6 +21891,9 @@ spec:
         volumeMounts:
         - mountPath: /var/run/secrets/istio
           name: istiod-ca-cert
+        - mountPath: /var/run/secrets/tokens
+          name: istio-token
+          readOnly: true
         - mountPath: /var/run/ingress_gateway
           name: ingressgatewaysdsudspath
         - mountPath: /etc/istio/pod
@@ -21897,6 +21920,13 @@ spec:
         name: podinfo
       - emptyDir: {}
         name: ingressgatewaysdsudspath
+      - name: istio-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              audience: istio-ca
+              expirationSeconds: 43200
+              path: istio-token
       - name: ingressgateway-certs
         secret:
           optional: true
@@ -22694,7 +22724,7 @@ spec:
         - --disable-install-crds=true
         env:
         - name: JWT_POLICY
-          value: first-party-jwt
+          value: third-party-jwt
         - name: PILOT_CERT_PROVIDER
           value: istiod
         - name: POD_NAME
@@ -22762,6 +22792,9 @@ spec:
         volumeMounts:
         - mountPath: /etc/istio/config
           name: config-volume
+        - mountPath: /var/run/secrets/tokens
+          name: istio-token
+          readOnly: true
         - mountPath: /var/run/secrets/istio-dns
           name: local-certs
         - mountPath: /etc/cacerts
@@ -22780,6 +22813,13 @@ spec:
       - emptyDir:
           medium: Memory
         name: local-certs
+      - name: istio-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              audience: istio-ca
+              expirationSeconds: 43200
+              path: istio-token
       - configMap:
           name: istiod
           optional: true
@@ -22844,7 +22884,7 @@ data:
         "istiod": {
           "enabled": true
         },
-        "jwtPolicy": "first-party-jwt",
+        "jwtPolicy": "third-party-jwt",
         "k8sIngress": {
           "enableHttps": false,
           "enabled": false,
