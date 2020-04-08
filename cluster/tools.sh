@@ -1,15 +1,17 @@
 #!/bin/bash
 helm repo update
 # install ingress
-# helm install stable/nginx-ingress --name nginx-ingress --namespace nginx-ingress \
-#             --set controller.service.enableHttp=true \
-#             --set controller.stats.enabled=true \
-#             --set controller.metrics.enabled=true \
+# helm install  stable/nginx-ingress --name nginx-ingress --namespace nginx-ingress \
+#             --set controller.publishService.enabled=true \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-proxy-protocol"=* \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-backend-protocol"=http \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-connection-idle-timeout"=3600 \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert"=$AWS_SSL_CERT_ARN \
-#             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-ports"=https
+#             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-ports"=https \
+#             --set-string controller.config.hsts=true \
+#             --set-string controller.config.ssl-redirect=true \
+#             --set-string controller.config.force-ssl-redirect=true \
+#             --set-string controller.config.use-proxy-protocol=false
 # kubectl -n nginx-ingress  rollout status deployment nginx-ingress-controller
 
 # install auto nodes scaler
@@ -78,12 +80,12 @@ kubectl -n metrics rollout status deployment metrics-server
 kubectl apply -f resources/metrics-server-hpa.yaml
 kubectl apply -f resources/metrics-server-pdb.yaml
 
-# install monitoring and alerting tools
 # enable basic auth
 htpasswd -c -b  ./keys/auth sysops $BASIC_AUTH_PWD
 kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 
-#leave this as 1 replicas to make stats valid as much as it could.
+# install monitoring and alerting tools
+# leave this as 1 replicas to make stats valid as much as it could.
 helm install stable/prometheus \
     --name prometheus \
     --namespace metrics \
