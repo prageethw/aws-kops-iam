@@ -2,16 +2,19 @@
 helm repo update
 # install ingress
 # helm install  stable/nginx-ingress --name nginx-ingress --namespace nginx-ingress \
+#             --version 1.36.0 \
 #             --set controller.publishService.enabled=true \
+#             --set controller.service.targetPorts.https=http \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-proxy-protocol"=* \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-backend-protocol"=http \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-connection-idle-timeout"=3600 \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert"=$AWS_SSL_CERT_ARN \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-ports"=https \
-#             --set-string controller.config.hsts=true \
 #             --set-string controller.config.ssl-redirect=true \
+#             --set-string controller.config.use-forwarded-headers=true \
+#             --set-string controller.config.use-proxy-protocol=false \
 #             --set-string controller.config.force-ssl-redirect=true \
-#             --set-string controller.config.use-proxy-protocol=false
+#             --set-string controller.config.hsts=true
 # kubectl -n nginx-ingress  rollout status deployment nginx-ingress-controller
 
 # install auto nodes scaler
