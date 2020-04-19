@@ -54,3 +54,7 @@ Users of can be given a package (**.zip**) file that will be generated in /clust
 ## 5. RBAC and access controls
 
 Once users get their package, they can read README.md and point them to K8s cluster. login details for Kube dashboard,monitoring and alerting tools will be displayed as part of context set.
+
+## 6. update cluster to new K8s version
+
+modify version specified in cluster/cluster-setup.sh and  sh -x update-k8s-cluster.sh
