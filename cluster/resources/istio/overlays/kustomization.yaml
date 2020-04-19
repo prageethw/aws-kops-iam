@@ -4,4 +4,4 @@ bases:
 - ../base
 patchesStrategicMerge:
 - istio-aws-ssl-config.yaml
-- istio-telemetry-hpa.yaml
+- istio-istiod-deployment.yaml

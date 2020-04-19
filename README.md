@@ -12,6 +12,7 @@ This repo contains files that will help you to create a K8s cluster using Kops o
 6. kops 1.10.0 till [issue](https://github.com/kubernetes/kops/pull/6201) fixed.
 7. Kustomize
 8. Istioctl
+9. Mac OS
 
 ## set-up terminal with AWS access details
 
@@ -28,7 +29,7 @@ MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=2 NODE_TYP
 ```
 
 **Note:**
-above command will create a cluster named prageethw.co.k8s.local (**Note:** DNS name will be appended with .k8s.local) with 3 master nodes and 2 worker nodes.
+Above command will create a cluster named prageethw.co.k8s.local (**Note:** DNS name will be appended with .k8s.local) with 3 master nodes and 2 worker nodes.
 BASIC_AUTH_PWD is the password you need to login to monitoring and alerting systems.To set something false pass "" as the value
 
 ## 2.  delete cluster
@@ -53,3 +54,7 @@ Users of can be given a package (**.zip**) file that will be generated in /clust
 ## 5. RBAC and access controls
 
 Once users get their package, they can read README.md and point them to K8s cluster. login details for Kube dashboard,monitoring and alerting tools will be displayed as part of context set.
+
+## 6. update cluster to new K8s version
+
+Modify version specified in cluster/cluster-setup.sh and  sh -x update-k8s-cluster.sh
