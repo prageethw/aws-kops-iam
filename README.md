@@ -29,7 +29,7 @@ MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=2 NODE_TYP
 ```
 
 **Note:**
-above command will create a cluster named prageethw.co.k8s.local (**Note:** DNS name will be appended with .k8s.local) with 3 master nodes and 2 worker nodes.
+Above command will create a cluster named prageethw.co.k8s.local (**Note:** DNS name will be appended with .k8s.local) with 3 master nodes and 2 worker nodes.
 BASIC_AUTH_PWD is the password you need to login to monitoring and alerting systems.To set something false pass "" as the value
 
 ## 2.  delete cluster
@@ -57,4 +57,4 @@ Once users get their package, they can read README.md and point them to K8s clus
 
 ## 6. update cluster to new K8s version
 
-modify version specified in cluster/cluster-setup.sh and  sh -x update-k8s-cluster.sh
+Modify version specified in cluster/cluster-setup.sh and  sh -x update-k8s-cluster.sh
