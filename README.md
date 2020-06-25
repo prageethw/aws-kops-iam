@@ -57,4 +57,4 @@ Once users get their package, they can read README.md and point them to K8s clus
 
 ## 6. update cluster to new K8s version
 
-Modify version specified in cluster/cluster-setup.sh and  sh -x update-k8s-cluster.sh
+Modify version specified in kops manifest and  sh -x update-k8s-cluster.sh
