@@ -9,7 +9,7 @@ This repo contains files that will help you to create a K8s cluster using Kops o
 3. Create a AWS account with admin rights.
 4. Helm.
 5. IAM authenticator.
-6. kops 1.10.0 till [issue](https://github.com/kubernetes/kops/pull/6201) fixed.
+6. kops.
 7. Kustomize
 8. Istioctl
 9. Mac OS
@@ -57,4 +57,4 @@ Once users get their package, they can read README.md and point them to K8s clus
 
 ## 6. update cluster to new K8s version
 
-Modify version specified in cluster/cluster-setup.sh and  sh -x update-k8s-cluster.sh
+Modify version specified in kops manifest and  sh -x update-k8s-cluster.sh
