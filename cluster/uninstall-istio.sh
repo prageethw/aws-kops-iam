@@ -6,6 +6,6 @@ do
   val=$(kubectl label namespace $each istio-injection- | head -1)
   if [ "$val" != "$str" ]; then
     echo $each
-    kubectl delete --all pods --namespace=$each
+    kubectl rollout restart all --namespace=$each
   fi
 done
