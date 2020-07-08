@@ -99,8 +99,8 @@ helm install stable/prometheus \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-secret"=sysops \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-realm"="Authentication Required - ok" \
     --set server.statefulSet.enabled="true" \
-    --set server.resources.limits.cpu="500m",server.resources.limits.memory="2Gi" \
-    --set server.resources.requests.cpu="250m",server.resources.requests.memory="1Gi" \
+    --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2Gi" \
+    --set server.resources.requests.cpu="500m",server.resources.requests.memory="1Gi" \
     --set alertmanager.resources.limits.cpu="500m",alertmanager.resources.limits.memory="1Gi" \
     --set alertmanager.resources.requests.cpu="250m",alertmanager.resources.requests.memory="0.5Gi" \
     --set alertmanager.statefulSet.enabled="true" \
