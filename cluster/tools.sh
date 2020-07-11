@@ -40,7 +40,7 @@ helm install stable/cluster-autoscaler \
     --set extraArgs.expander="least-waste" \
     --set replicaCount=2 \
     --set podDisruptionBudget="minAvailable: 1" \
-    --set resources.limits.cpu="200m",resources.limits.memory="100Mi"
+    --set resources.limits.cpu="100m",resources.limits.memory="200Mi"
 kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscaler
 # kubectl apply -f resources/aws-ca-pdb.yaml
 
