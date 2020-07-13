@@ -154,7 +154,7 @@ kubectl  apply -f resources/grafana-pdb.yaml
 helm install \
     banzaicloud-stable/kube-metrics-adapter \
     --name kube-metrics-adapter \
-    --version 0.0.5 \
+    --version 0.1.3 \
     --namespace metrics \
     --set logLevel=1 \
     --set rbac.create=true \
