@@ -150,7 +150,7 @@ kubectl -n metrics rollout status statefulset grafana
 kubectl  apply -f resources/grafana-pdb.yaml
 
 # kube-metrics adapter is a general purpose prom adaptor seems less complicated than prometheus-adapter
-# Note: this chart is not from official repo
+# Note: this chart is not from official repo 
 helm install \
     banzaicloud-stable/kube-metrics-adapter \
     --name kube-metrics-adapter \
@@ -162,7 +162,7 @@ helm install \
     --set prometheus.url=http://prometheus.istio-system.svc:9090 \
     --set resources.limits.cpu="150m",resources.limits.memory="300Mi"\
     --set image.repository=registry.opensource.zalan.do/teapot/kube-metrics-adapter \
-    --set image.tag=v0.1.5
+    --set image.tag=v0.1.5   # this need k8s 1.17
 kubectl -n metrics rollout status deployment kube-metrics-adapter
 kubectl apply -f resources/kube-metrics-adapter-hpa.yaml
 kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
