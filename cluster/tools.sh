@@ -156,6 +156,8 @@ helm install \
     --name kube-metrics-adapter \
     --version 0.1.3 \
     --namespace metrics \
+    --set enableCustomMetricsApi=true \
+    --set enableExternalMetricsApi=true \
     --set logLevel=1 \
     --set rbac.create=true \
     --set aws.enable=true \
