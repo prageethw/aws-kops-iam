@@ -97,7 +97,7 @@ kops create cluster \
   --zones $ZONES \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
-  --kubernetes-version v1.18.6 \
+  --kubernetes-version v1.18.8 \
   --ssh-public-key ${SSH_PUBLIC_KEY:-keys/kops/kops.pub} \
   --networking kubenet \
   --authorization RBAC \
@@ -450,10 +450,9 @@ if [[ -z "${DRY_RUN}"  ]]; then
   echo ""
 
   mkdir -p config
-
-  KUBECONFIG=$PWD/keys/kops/kops-kubecfg.yaml
-  kops export kubecfg --name ${NAME}
+  touch $PWD/keys/kops/kops-kubecfg.yaml # stops an error of not having file.
   export KUBECONFIG=$PWD/keys/kops/kops-kubecfg.yaml
+  kops export kubecfg --name ${NAME}
   echo ""
 fi
 ###################################################
