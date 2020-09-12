@@ -48,7 +48,6 @@ spec:
             cpu: 100m
             memory: 128Mi
       proxy_init:
-        image: proxyv2
         resources:
           limits:
             cpu: 200m #changed originaly was 2000m
