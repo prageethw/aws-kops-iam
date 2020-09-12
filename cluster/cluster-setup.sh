@@ -97,7 +97,7 @@ kops create cluster \
   --zones $ZONES \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
-  --kubernetes-version v1.17.7 \
+  --kubernetes-version v1.18.8 \
   --ssh-public-key ${SSH_PUBLIC_KEY:-keys/kops/kops.pub} \
   --networking kubenet \
   --authorization RBAC \
@@ -195,6 +195,8 @@ else
         helm repo add stable https://kubernetes-charts.storage.googleapis.com
         helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
         helm repo add flagger-stable https://flagger.app
+        helm repo add bitnami https://charts.bitnami.com/bitnami
+        helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
         kubectl apply -f resources/tiller-rbac.yml 
         helm init --service-account tiller
         helm init --service-account tiller-dev --tiller-namespace dev
@@ -448,9 +450,8 @@ if [[ -z "${DRY_RUN}"  ]]; then
   echo ""
 
   mkdir -p config
-
+  touch $PWD/keys/kops/kops-kubecfg.yaml # stops an error of not having file.
   export KUBECONFIG=$PWD/keys/kops/kops-kubecfg.yaml
-
   kops export kubecfg --name ${NAME}
   echo ""
 fi
