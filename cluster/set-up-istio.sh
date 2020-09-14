@@ -30,6 +30,11 @@ sed -i '' '/ca_file: \/var\/run\/secrets\/kubernetes.io\/serviceaccount\/ca.crt/
 kubectl apply -f istio-install-demo-profile.yaml
 kubectl -n istio-system rollout status  deployments istiod
 kubectl -n istio-system rollout status  deployments istio-ingressgateway
+# deploy default add-ons
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/prometheus.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/grafana.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/jaeger.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml
 # enable basic auth for add-ons (same file used to enable for nginx basic auth)
 kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 # validate installation success
@@ -51,22 +56,22 @@ kubectl label namespace prod \
 
 # enable kiali by seting scret
 
-KIALI_USERNAME=$(echo -n sysops | base64)
-KIALI_PASSPHRASE=$(echo -n $BASIC_AUTH_PWD | base64)
-# create secret
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: kiali
-  namespace: istio-system
-  labels:
-    app: kiali
-type: Opaque
-data:
-  username: $KIALI_USERNAME
-  passphrase: $KIALI_PASSPHRASE
-EOF
+# KIALI_USERNAME=$(echo -n sysops | base64)
+# KIALI_PASSPHRASE=$(echo -n $BASIC_AUTH_PWD | base64)
+# # create secret
+# cat <<EOF | kubectl apply -f -
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: kiali
+#   namespace: istio-system
+#   labels:
+#     app: kiali
+# type: Opaque
+# data:
+#   username: $KIALI_USERNAME
+#   passphrase: $KIALI_PASSPHRASE
+# EOF
 
 # create ingress for add-ons
 cat resources/istio-add-ons-using-nginx-ingress.yaml | sed -e     "s@MESH_GRAFANA_ADDR@$MESH_GRAFANA_ADDR@g; \
