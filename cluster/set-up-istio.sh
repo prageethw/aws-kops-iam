@@ -35,6 +35,7 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/sampl
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/grafana.yaml
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/jaeger.yaml
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.7/samples/addons/kiali.yaml #incase fails
 # enable basic auth for add-ons (same file used to enable for nginx basic auth)
 kubectl create secret generic sysops --from-file ./keys/auth -n istio-system
 # validate installation success
