@@ -161,7 +161,7 @@ helm install \
     --set logLevel=1 \
     --set rbac.create=true \
     --set aws.enable=true \
-    --set prometheus.url=http://prometheus.istio-system.svc:9090 \
+    --set prometheus.url=http://prometheus-server.metrics:80 \
     --set resources.limits.cpu="150m",resources.limits.memory="300Mi"\
     --set image.repository=registry.opensource.zalan.do/teapot/kube-metrics-adapter \
     --set image.tag=v0.1.5
@@ -176,7 +176,7 @@ helm upgrade -i flagger flagger-stable/flagger \
     --namespace=metrics \
     --set crd.create=true \
     --set meshProvider=istio \
-    --set metricsServer=http://prometheus.istio-system:9090
+    --set metricsServer=http://prometheus-server.metrics:80
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
 kubectl apply -f resources/flagger-pdb.yaml
