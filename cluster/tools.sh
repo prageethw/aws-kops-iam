@@ -1,7 +1,8 @@
 #!/bin/bash
 helm repo update
 # install ingress
-# helm install  stable/nginx-ingress --name nginx-ingress --namespace nginx-ingress \
+# kubectl create namespace nginx-ingress
+# helm install nginx-ingress stable/nginx-ingress --namespace nginx-ingress \
 #             --version 1.36.0 \
 #             --set controller.publishService.enabled=true \
 #             --set controller.service.targetPorts.https=http \
@@ -18,8 +19,8 @@ helm repo update
 # kubectl -n nginx-ingress  rollout status deployment nginx-ingress-controller
 
 # install auto nodes scaler
-helm install stable/cluster-autoscaler \
-    --name aws-cluster-autoscaler \
+kubectl create namespace aws-cluster-autoscaler
+helm install aws-cluster-autoscaler stable/cluster-autoscaler \
     --namespace aws-cluster-autoscaler \
     --version 7.0.0 \
     --set autoDiscovery.clusterName=$NAME \
@@ -46,7 +47,8 @@ kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscal
 
 # install external-dns statful service no replicas supported atm
 # if you enable istio as below you need to intall istio-ingressgateway crds to make it work else an error thrown.
-helm install bitnami/external-dns --namespace external-dns --name external-dns --version=3.2.3 \
+kubectl create namespace external-dns
+helm install external-dns  bitnami/external-dns --namespace external-dns --version=3.2.3 \
         --set aws.credentials.secretKey=$AWS_SECRET_ACCESS_KEY \
         --set aws.credentials.accessKey=$AWS_ACCESS_KEY_ID \
         --set aws.region=$AWS_DEFAULT_REGION \
@@ -61,7 +63,7 @@ kubectl apply -f resources/external-dns-pdb.yaml
 kubectl apply -f resources/external-dns-hpa.yaml
 
 # install dashboard  for k8s cluster needs to run in kube-system
-helm install kubernetes-dashboard/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system --version=2.2.0 \
+helm install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --namespace kube-system --version=2.2.0 \
                      --set ingress.enabled=true \
                      --set ingress.hosts[0]=$DASHBOARD_ADDR \
                      --set service.externalPort=8080 \
@@ -73,8 +75,8 @@ kubectl -n kube-system rollout status deployment kubernetes-dashboard
 kubectl apply -f resources/kube-dashboard-pdb.yaml
 
 # install metrics server runs on all nodes
-helm install stable/metrics-server \
-    --name metrics-server \
+kubectl create namespace metrics
+helm install metrics-server stable/metrics-server \
     --version 2.11.1 \
     --set replicas=2 \
     --namespace metrics \
@@ -91,8 +93,7 @@ kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 
 # install monitoring and alerting tools
 # leave this as 1 replicas to make stats valid as much as it could.
-helm install stable/prometheus \
-    --name prometheus \
+helm install prometheus stable/prometheus \
     --namespace metrics \
     --version 11.7.0 \
     --set server.ingress.hosts={$PROM_ADDR} \
@@ -117,9 +118,8 @@ kubectl apply -f resources/prometheus-pdb.yaml
 # curl -v -u sysops:$BASIC_AUTH_PWD https://$PROM_ADDR
 
 # install prom adaptor for prom integration with k8s metrics server, note pointing to istio prom.
-# helm install \
+# helm prometheus-adapter install \
 #     stable/prometheus-adapter \
-#     --name prometheus-adapter \
 #     --version 2.0.0 \
 #     --namespace metrics \
 #     --set logLevel=4 \
@@ -136,8 +136,7 @@ kubectl apply -f resources/prometheus-pdb.yaml
 # kubectl apply -f resources/prom-adapter-pdb.yaml
 
 # install grafana
-helm install stable/grafana \
-    --name grafana \
+helm install grafana stable/grafana \
     --namespace metrics \
     --version 5.3.5 \
     --set persistence.type="statefulset" \
@@ -151,9 +150,8 @@ kubectl  apply -f resources/grafana-pdb.yaml
 
 # kube-metrics adapter is a general purpose prom adaptor seems less complicated than prometheus-adapter
 # Note: this chart is not from official repo 
-helm install \
+helm install kube-metrics-adapter \
     banzaicloud-stable/kube-metrics-adapter \
-    --name kube-metrics-adapter \
     --version 0.1.3 \
     --namespace metrics \
     --set enableCustomMetricsApi=true \
@@ -172,10 +170,11 @@ kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
 
 # install flagger
 helm upgrade -i flagger flagger-stable/flagger \
-    --version 1.0.0 \
+    --version 1.1.0 \
     --namespace=metrics \
-    --set crd.create=true \
     --set meshProvider=istio \
+    --set resources.limits.cpu=100m \
+    --set resources.limits.memory=250Mi \
     --set metricsServer=http://prometheus-server.metrics:80
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
