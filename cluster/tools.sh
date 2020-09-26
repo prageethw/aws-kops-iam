@@ -2,8 +2,8 @@
 helm repo update
 # install ingress
 # kubectl create namespace nginx-ingress
-# helm install nginx-ingress stable/nginx-ingress --namespace nginx-ingress \
-#             --version 1.36.0 \
+# helm install ingress-nginx ingress-nginx/ingress-nginx --namespace nginx-ingress \
+#             --version 3.3.0 \
 #             --set controller.publishService.enabled=true \
 #             --set controller.service.targetPorts.https=http \
 #             --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-proxy-protocol"=* \
@@ -77,7 +77,7 @@ kubectl apply -f resources/kube-dashboard-pdb.yaml
 # install metrics server runs on all nodes
 kubectl create namespace metrics
 helm install metrics-server stable/metrics-server \
-    --version 2.11.1 \
+    --version 2.11.2 \
     --set replicas=2 \
     --namespace metrics \
     --set args={"--kubelet-insecure-tls=true,--kubelet-preferred-address-types=InternalIP\,Hostname\,ExternalIP"} \
