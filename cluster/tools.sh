@@ -93,9 +93,9 @@ kubectl create secret generic sysops --from-file ./keys/auth -n metrics
 
 # install monitoring and alerting tools
 # leave this as 1 replicas to make stats valid as much as it could.
-helm install prometheus stable/prometheus \
+helm install prometheus prometheus/prometheus \
     --namespace metrics \
-    --version 11.7.0 \
+    --version 11.15.0 \
     --set server.ingress.hosts={$PROM_ADDR} \
     --set alertmanager.ingress.hosts={$AM_ADDR} \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-type"=basic \
@@ -136,9 +136,9 @@ kubectl apply -f resources/prometheus-pdb.yaml
 # kubectl apply -f resources/prom-adapter-pdb.yaml
 
 # install grafana
-helm install grafana stable/grafana \
+helm install grafana grafana/grafana \
     --namespace metrics \
-    --version 5.3.5 \
+    --version 5.6.9 \
     --set persistence.type="statefulset" \
     --set persistence.size="5Gi" \
     --set podDisruptionBudget.minAvailable=1 \

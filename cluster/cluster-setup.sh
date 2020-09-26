@@ -196,6 +196,8 @@ else
         helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
         helm repo add kiali https://kiali.org/helm-charts
         helm repo add jaeger https://jaegertracing.github.io/helm-charts
+        helm repo add prometheus https://prometheus-community.github.io/helm-charts
+        helm repo add grafana https://grafana.github.io/helm-charts
     fi
 
 ################################################################
@@ -311,13 +313,13 @@ else
 
 ################################################################
 
-#######install tools ###########################################
-
-     echo "installing required tools"
-     echo ""
-     sh tools.sh
-     echo ""
-
+#######install tools if only helm enabled ###########################################
+   if [[ ! -z "${USE_HELM}" ]]; then
+        echo "installing required tools"
+        echo ""
+        sh tools.sh
+        echo ""
+   fi
 ################################################################
 
     if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then

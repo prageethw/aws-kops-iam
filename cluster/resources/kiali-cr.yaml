@@ -1,0 +1,50 @@
+apiVersion: kiali.io/v1alpha1
+kind: Kiali
+metadata:
+  name: kiali
+  annotations:
+    ansible.operator-sdk/verbosity: "1"
+spec:
+ auth:
+   strategy: "anonymous"
+ deployment:
+   accessible_namespaces: ["^((?!(istio-operator|kube.*|openshift.*|ibm.*|kiali-operator)).)*$"]
+   image_pull_policy: "IfNotPresent"
+   verbose_mode: "1"
+   resources: 
+      requests:
+        memory: "100Mi"
+        cpu: "100m"
+      limits:
+        memory: "250Mi"
+        cpu: "200m"
+ external_services:
+   grafana:
+     in_cluster_url: "http://grafana.metrics:80"
+     url: "https://grafana.cluster.prageethw.co"
+   istio:
+     component_status:
+       components:
+       - app_label: istio-egressgateway
+         is_core: true
+   prometheus:
+     url: "http://prometheus-server.metrics:80"
+#    ---
+#    tracing:
+#      auth:
+#        ca_file: ""
+#        insecure_skip_verify: false
+#        password: ""
+#        token: ""
+#        type: "none"
+#        use_kiali_token: false
+#        username: ""
+#      component_status:
+#        app_label: "jaeger"
+#        is_core: false
+#      enabled: true
+#      in_cluster_url: ""
+#      namespace_selector: true
+#      url: ""
+#      whitelist_istio_system: ["jaeger-query", "istio-ingressgateway"]
+
