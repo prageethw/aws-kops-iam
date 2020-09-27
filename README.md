@@ -25,7 +25,7 @@ export AWS_DEFAULT_REGION=[...]
 ## 1. build a kops k8s cluster
 
 ```bash
-MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=2 NODE_TYPE=t3.medium MASTER_TYPE=t2.small MY_ORG_DNS_NAME=prageethw.co USE_HELM=true UPDATE_ISTIO_MESH="" INSTALL_ISTIO_MESH=true BASIC_AUTH_PWD=abcd1234 time sh -x build-k8s-cluster.sh
+MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=2 DESIRED_NODE_COUNT=2 NODE_TYPE=t3.medium MASTER_TYPE=t2.small MY_ORG_DNS_NAME=prageethw.com USE_HELM=true UPDATE_ISTIO_MESH="" INSTALL_ISTIO_MESH=true BASIC_AUTH_PWD=abcd1234 time sh -x build-k8s-cluster.sh
 ```
 
 **Note:**
