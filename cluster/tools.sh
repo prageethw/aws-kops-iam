@@ -119,8 +119,8 @@ kubectl apply -f resources/prometheus-pdb.yaml
 
 # install prom adaptor for prom integration with k8s metrics server, note pointing to istio prom.
 # helm prometheus-adapter install \
-#     stable/prometheus-adapter \
-#     --version 2.0.0 \
+#     prometheus/prometheus-adapter \
+#     --version 2.7.0 \
 #     --namespace metrics \
 #     --set logLevel=4 \
 #     --set rbac.create=true \
