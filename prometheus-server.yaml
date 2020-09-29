@@ -1,0 +1,520 @@
+apiVersion: v1
+data:
+  alerting_rules.yml: |
+    {}
+  alerts: |
+    groups:
+    - name: nodes
+      rules:
+      - alert: Too-Many-Worker-Nodes
+        annotations:
+          description: The number of the nodes in the cluster increased
+          summary: Cluster increased
+        expr: count(kube_node_labels {label_kubernetes_io_role="node"}) > 8
+        for: 10m
+        labels:
+          severity: notify
+      - alert: Too-Few-Worker-Nodes
+        annotations:
+          description: The number of the nodes in the cluster decreased
+          summary: Cluster decreased
+        expr: count(kube_node_labels {label_kubernetes_io_role="node"}) < 2
+        for: 10m
+        labels:
+          severity: notify
+      - alert: Too-Many-Master-Nodes
+        annotations:
+          description: The number of the nodes in the cluster increased
+          summary: Cluster increased
+        expr: count(kube_node_labels {label_kubernetes_io_role="master"}) > 3
+        for: 10m
+        labels:
+          severity: notify
+      - alert: Too-Few-Master-Nodes
+        annotations:
+          description: The number of the nodes in the cluster decreased
+          summary: Cluster decreased
+        expr: count(kube_node_labels {label_kubernetes_io_role="master"}) < 3
+        for: 10m
+        labels:
+          severity: notify
+      - alert: Not-Enough-CPU-In-Nodes
+        annotations:
+          description: CPU usage of the cluster is above 80%
+          summary: There\'s not enough CPU
+        expr: sum(rate(node_cpu_seconds_total{mode!="idle", mode!="iowait", mode!~"^(?:guest.*)$"}[5m]))
+          / count(node_cpu_seconds_total{mode="system"}) > 0.8
+        for: 30m
+        labels:
+          severity: notify
+      - alert: Too-Much-CPU-Requested-Nodes
+        annotations:
+          description: More than 80% of allocatable CPU is requested
+          summary: There\'s not enough allocatable CPU
+        expr: (sum(kube_pod_container_resource_requests_cpu_cores {namespace !="kube-system"
+          , namespace !="kube-public"})) / (sum(kube_node_status_allocatable_cpu_cores)
+          - sum(machine_cpu_cores {kubernetes_io_role="master"})) > 0.8
+        for: 30m
+        labels:
+          severity: notify
+      - alert: Not-Enough-Memory-Nodes
+        annotations:
+          description: Memory usage of the cluster is above 80%
+          summary: There\'s not enough memory
+        expr: (1-( sum(node_memory_MemAvailable_bytes))/(sum(node_memory_MemTotal_bytes)))>0.8
+        for: 30m
+        labels:
+          severity: notify
+      - alert: Too-Much-Memory-Requested-Nodes
+        annotations:
+          description: More than 80% of allocatable memory is requested
+          summary: There\'s not enough allocatable memory
+        expr: (sum(kube_pod_container_resource_requests_memory_bytes {namespace !="kube-system"
+          , namespace !="kube-public"}) / sum(node_memory_MemAvailable_bytes))>0.8
+        for: 30m
+        labels:
+          severity: notify
+      - alert: Too-Much-Free-Memory-In-Nodes
+        annotations:
+          description: Less than 80% of memory is used on at least one node
+          summary: Too much unused memory
+        expr: (1 - sum(node_memory_MemAvailable_bytes) by (instance) / sum(node_memory_MemTotal_bytes)
+          by (instance)) < 0.6
+        for: 10m
+        labels:
+          severity: notify
+      - alert: Too-Much-Free-CPU-In-Nodes
+        annotations:
+          description: Less than 80% of CPU a used on at least one node
+          summary: Too much unused CPU
+        expr: (sum(rate(node_cpu_seconds_total{mode!="idle", mode!="iowait", mode!~"^(?:guest.*)$"}[5m]))
+          by (instance) / count(node_cpu_seconds_total{mode="system"}) by (instance))
+          < 0.6
+        for: 10m
+        labels:
+          severity: notify
+    - name: errors
+      rules:
+      - alert: Too-Many-Errors
+        annotations:
+          description: At least one application produced more then 5% of error responses
+          summary: Too many errors
+        expr: sum(rate(nginx_ingress_controller_requests{status=~"5.."}[5m])) by (ingress)
+          / sum(rate(nginx_ingress_controller_requests[5m])) by (ingress) > 0.025
+        labels:
+          severity: error
+    - name: latency
+      rules:
+      - alert: Apps-Too-Slow
+        annotations:
+          description: More then 5% of requests are slower than 0.25s
+          summary: Application is too slow
+        expr: sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{le="0.25"}[5m]))
+          by (ingress) / sum(rate(nginx_ingress_controller_request_duration_seconds_count[5m]))
+          by (ingress) < 0.95
+        labels:
+          severity: notify
+      - alert: Too-Many-Requests
+        annotations:
+          description: There is more than average of 1 requests per second per replica
+            for at least one application
+          summary: Too many requests
+        expr: sum(rate(nginx_ingress_controller_requests[5m])) by (ingress) / sum(label_join(kube_deployment_status_replicas,
+          "ingress", ",", "deployment")) by (ingress) > 1
+        labels:
+          severity: notify
+    - name: pods
+      rules:
+      - alert: Problematic-Pods
+        annotations:
+          description: At least one Pod is in a problematic phase
+          summary: At least one Pod could not run
+        expr: sum(kube_pod_status_phase{phase=~"Failed|Unknown|Pending"}) by (phase) >
+          0
+        for: 15m
+        labels:
+          severity: notify
+      - alert: Old-Pods
+        annotations:
+          description: At least one Pod has not been updated to more than 90 days
+          summary: Old Pods
+        expr: (time() - kube_pod_start_time{namespace!="kube-system" , namespace!="kube-public"})
+          > (60 * 60 * 24 * 90)
+        labels:
+          frequency: low
+          severity: notify
+      - alert: Reserved-Mem-Too-Low-In-Pods
+        annotations:
+          description: At least one Pod uses much more memory than it reserved, consider
+            adjusting requested.
+          summary: Reserved memory is too low
+        expr: sum(label_join(container_memory_usage_bytes{namespace!="kube-system"}, "pod",
+          ",", "pod")) by (pod) / sum(kube_pod_container_resource_requests_memory_bytes{namespace!="kube-system"})
+          by (pod) > 1.5
+        for: 1h
+        labels:
+          frequency: low
+          severity: notify
+      - alert: Reserved-Mem-Too-High-In-Pods
+        annotations:
+          description: At least one Pod uses much less memory than it reserved
+          summary: Reserved memory is too high
+        expr: sum(label_join(container_memory_usage_bytes{namespace!="kube-system"}, "pod",
+          ",", "pod")) by (pod) / sum(kube_pod_container_resource_requests_memory_bytes{namespace!="kube-system"})
+          by (pod) < 0.6 and sum(kube_pod_container_resource_requests_memory_bytes{namespace!="kube-system"})
+          by (pod) > 5.25e+06
+        for: 6h
+        labels:
+          frequency: low
+          severity: notify
+      - alert: Reserved-CPU-Too-Low-In-Pods
+        annotations:
+          description: At least one Pod uses much more CPU than it reserved
+          summary: Reserved CPU is too low
+        expr: sum(label_join(rate(container_cpu_usage_seconds_total{namespace!="kube-system",
+          pod!=""}[5m]), "pod", ",", "pod")) by (pod) / sum(kube_pod_container_resource_requests_cpu_cores{namespace!="kube-system"})
+          by (pod) > 1.5
+        for: 1h
+        labels:
+          frequency: low
+          severity: notify
+      - alert: Reserved-CPU-Too-High-In-Pods
+        annotations:
+          description: At least one Pod uses much less CPU than it reserved
+          summary: Reserved CPU is too high
+        expr: sum(label_join(rate(container_cpu_usage_seconds_total{namespace!="kube-system",pod!=""}[5m]),
+          "pod", ",", "pod")) by (pod) / sum(kube_pod_container_resource_requests_cpu_cores{namespace!="kube-system",
+          pod!=""}) by (pod) < 0.5 and sum(kube_pod_container_resource_requests_cpu_cores{namespace!="kube-system"})
+          by (pod) > 0.005
+        for: 6h
+        labels:
+          frequency: low
+          severity: notify
+      - alert: Memory-At-The-Limit-In-Pods
+        annotations:
+          description: At least one Pod uses memory that is close it its limit
+          summary: Memory usage is almost at the limit
+        expr: sum(label_join(container_memory_usage_bytes{namespace!="kube-system"}, "pod",
+          ",", "pod")) by (pod) / sum(kube_pod_container_resource_limits_memory_bytes{namespace!="kube-system"})
+          by (pod) > 0.8
+        for: 1h
+        labels:
+          frequency: low
+          severity: notify
+  prometheus.yml: |
+    global:
+      evaluation_interval: 1m
+      scrape_interval: 1m
+      scrape_timeout: 10s
+    rule_files:
+    - /etc/config/recording_rules.yml
+    - /etc/config/alerting_rules.yml
+    - /etc/config/rules
+    - /etc/config/alerts
+    scrape_configs:
+    - job_name: prometheus
+      static_configs:
+      - targets:
+        - localhost:9090
+    - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      job_name: kubernetes-apiservers
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - action: keep
+        regex: default;kubernetes;https
+        source_labels:
+        - __meta_kubernetes_namespace
+        - __meta_kubernetes_service_name
+        - __meta_kubernetes_endpoint_port_name
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+    - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      job_name: kubernetes-nodes
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - replacement: kubernetes.default.svc:443
+        target_label: __address__
+      - regex: (.+)
+        replacement: /api/v1/nodes/$1/proxy/metrics
+        source_labels:
+        - __meta_kubernetes_node_name
+        target_label: __metrics_path__
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+    - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      job_name: kubernetes-nodes-cadvisor
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - replacement: kubernetes.default.svc:443
+        target_label: __address__
+      - regex: (.+)
+        replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
+        source_labels:
+        - __meta_kubernetes_node_name
+        target_label: __metrics_path__
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+    - job_name: kubernetes-service-endpoints
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scrape
+      - action: replace
+        regex: (https?)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scheme
+        target_label: __scheme__
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        source_labels:
+        - __address__
+        - __meta_kubernetes_service_annotation_prometheus_io_port
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: kubernetes_namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_service_name
+        target_label: kubernetes_name
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: kubernetes_node
+    - job_name: kubernetes-service-endpoints-slow
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scrape_slow
+      - action: replace
+        regex: (https?)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scheme
+        target_label: __scheme__
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        source_labels:
+        - __address__
+        - __meta_kubernetes_service_annotation_prometheus_io_port
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: kubernetes_namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_service_name
+        target_label: kubernetes_name
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: kubernetes_node
+      scrape_interval: 5m
+      scrape_timeout: 30s
+    - honor_labels: true
+      job_name: prometheus-pushgateway
+      kubernetes_sd_configs:
+      - role: service
+      relabel_configs:
+      - action: keep
+        regex: pushgateway
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_probe
+    - job_name: kubernetes-services
+      kubernetes_sd_configs:
+      - role: service
+      metrics_path: /probe
+      params:
+        module:
+        - http_2xx
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_probe
+      - source_labels:
+        - __address__
+        target_label: __param_target
+      - replacement: blackbox
+        target_label: __address__
+      - source_labels:
+        - __param_target
+        target_label: instance
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - source_labels:
+        - __meta_kubernetes_namespace
+        target_label: kubernetes_namespace
+      - source_labels:
+        - __meta_kubernetes_service_name
+        target_label: kubernetes_name
+    - job_name: kubernetes-pods
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        source_labels:
+        - __address__
+        - __meta_kubernetes_pod_annotation_prometheus_io_port
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: kubernetes_namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: kubernetes_pod_name
+    - job_name: kubernetes-pods-slow
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_scrape_slow
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_pod_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        source_labels:
+        - __address__
+        - __meta_kubernetes_pod_annotation_prometheus_io_port
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: kubernetes_namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: kubernetes_pod_name
+      scrape_interval: 5m
+      scrape_timeout: 30s
+    alerting:
+      alertmanagers:
+      - kubernetes_sd_configs:
+          - role: pod
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace]
+          regex: metrics
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          regex: prometheus
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_label_component]
+          regex: alertmanager
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_probe]
+          regex: .*
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_container_port_number]
+          regex:
+          action: drop
+  recording_rules.yml: |
+    {}
+  rules: |
+    {}
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: prometheus
+    meta.helm.sh/release-namespace: metrics
+  creationTimestamp: "2020-09-28T11:37:56Z"
+  labels:
+    app: prometheus
+    app.kubernetes.io/managed-by: Helm
+    chart: prometheus-11.15.0
+    component: server
+    heritage: Helm
+    release: prometheus
+  managedFields:
+  - apiVersion: v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:data:
+        .: {}
+        f:alerting_rules.yml: {}
+        f:alerts: {}
+        f:prometheus.yml: {}
+        f:recording_rules.yml: {}
+        f:rules: {}
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:meta.helm.sh/release-name: {}
+          f:meta.helm.sh/release-namespace: {}
+        f:labels:
+          .: {}
+          f:app: {}
+          f:app.kubernetes.io/managed-by: {}
+          f:chart: {}
+          f:component: {}
+          f:heritage: {}
+          f:release: {}
+    manager: Go-http-client
+    operation: Update
+    time: "2020-09-28T11:37:56Z"
+  name: prometheus-server
+  namespace: metrics
+  resourceVersion: "37509"
+  selfLink: /api/v1/namespaces/metrics/configmaps/prometheus-server
+  uid: 2d47ba5c-0fcf-4b5d-8ac3-b052ebb65e5c
