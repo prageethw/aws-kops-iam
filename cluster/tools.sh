@@ -102,6 +102,7 @@ helm install prometheus prometheus/prometheus \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-secret"=sysops \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-realm"="Authentication Required - ok" \
     --set server.statefulSet.enabled="true" \
+    --set server.global.scrape_interval="15s" \
     --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2Gi" \
     --set server.resources.requests.cpu="500m",server.resources.requests.memory="1Gi" \
     --set alertmanager.resources.limits.cpu="500m",alertmanager.resources.limits.memory="1Gi" \
