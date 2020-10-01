@@ -8,7 +8,8 @@ spec:
  auth:
    strategy: "anonymous"
  deployment:
-   accessible_namespaces: ["^((?!(istio-operator|kube.*|openshift.*|ibm.*|kiali-operator)).)*$"]
+   accessible_namespaces: 
+   - "**" # this means all
    image_pull_policy: "IfNotPresent"
    verbose_mode: "1"
    resources: 
