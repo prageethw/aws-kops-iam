@@ -154,6 +154,7 @@ spec:
                 enum:
                 - ALLOW
                 - DENY
+                - AUDIT
                 type: string
               rules:
                 description: Optional.
@@ -5648,7 +5649,7 @@ spec:
                         type: object
                       type: array
                     timeout:
-                      description: Timeout for HTTP requests.
+                      description: Timeout for HTTP requests, default is disabled.
                       type: string
                   type: object
                 type: array
@@ -6440,7 +6441,7 @@ spec:
                         type: object
                       type: array
                     timeout:
-                      description: Timeout for HTTP requests.
+                      description: Timeout for HTTP requests, default is disabled.
                       type: string
                   type: object
                 type: array
@@ -7633,7 +7634,7 @@ data:
         DNS_AGENT: ""
       tracing:
         zipkin:
-          address: zipkin.istio-system:9411
+          address: jaeger-collector.istio-system:9411
     disableMixerHttpReports: true
     enablePrometheusMerge: true
     rootNamespace: istio-system
@@ -7757,7 +7758,7 @@ data:
         "sts": {
           "servicePort": 0
         },
-        "tag": "1.7.0",
+        "tag": "1.7.2",
         "telemetryNamespace": "istio-system",
         "tracer": {
           "datadog": {
@@ -7774,7 +7775,7 @@ data:
             "maxNumberOfMessageEvents": 200
           },
           "zipkin": {
-            "address": ""
+            "address": "jaeger-collector.istio-system:9411"
           }
         },
         "trustDomain": "cluster.local",
@@ -8432,7 +8433,7 @@ spec:
           value: sni-dnat
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.7.0
+        image: docker.io/istio/proxyv2:1.7.2
         name: istio-proxy
         ports:
         - containerPort: 8080
@@ -8661,7 +8662,7 @@ spec:
           value: sni-dnat
         - name: ISTIO_META_CLUSTER_ID
           value: Kubernetes
-        image: docker.io/istio/proxyv2:1.7.0
+        image: docker.io/istio/proxyv2:1.7.2
         name: istio-proxy
         ports:
         - containerPort: 15021
@@ -8837,7 +8838,7 @@ spec:
           value: Kubernetes
         - name: CENTRAL_ISTIOD
           value: "false"
-        image: docker.io/istio/pilot:1.7.0
+        image: docker.io/istio/pilot:1.7.2
         name: discovery
         ports:
         - containerPort: 8080
@@ -9202,4 +9203,4 @@ spec:
     # This avoids default deployment picking the canary
     istio: pilot
 ---
-# manifest generated with : client version: 1.7.0 control plane version: 1.7.0 data plane version: 1.7.0 (4 proxies)
+# manifest generated with : client version: 1.7.2 control plane version: 1.7.2 data plane version: 1.7.2 (4 proxies)

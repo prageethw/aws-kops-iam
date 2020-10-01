@@ -154,6 +154,7 @@ spec:
                 enum:
                 - ALLOW
                 - DENY
+                - AUDIT
                 type: string
               rules:
                 description: Optional.
@@ -5648,7 +5649,7 @@ spec:
                         type: object
                       type: array
                     timeout:
-                      description: Timeout for HTTP requests.
+                      description: Timeout for HTTP requests, default is disabled.
                       type: string
                   type: object
                 type: array
@@ -6440,7 +6441,7 @@ spec:
                         type: object
                       type: array
                     timeout:
-                      description: Timeout for HTTP requests.
+                      description: Timeout for HTTP requests, default is disabled.
                       type: string
                   type: object
                 type: array
@@ -6961,4 +6962,4 @@ subjects:
     name: istiod-service-account
     namespace: istio-system
 ---
-# manifest generated with : client version: 1.7.0 control plane version: 1.7.0 data plane version: 1.7.0 (4 proxies)
+# manifest generated with : client version: 1.7.2 control plane version: 1.7.2 data plane version: 1.7.2 (4 proxies)

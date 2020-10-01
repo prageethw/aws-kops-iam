@@ -18,10 +18,27 @@ spec:
       limits:
         memory: "250Mi"
         cpu: "200m"
+   ingress_enabled: true
+   override_ingress_yaml:
+      metadata:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - ok"
+          nginx.ingress.kubernetes.io/auth-secret: sysops
+          nginx.ingress.kubernetes.io/auth-type: basic
+      spec:
+        rules:
+        - host: mesh-kiali.cluster.prageethw.com
+          http:
+            paths:
+            - backend:
+                serviceName: kiali
+                servicePort: 20001
+              path: /
  external_services:
    grafana:
      in_cluster_url: "http://grafana.metrics:80"
-     url: "https://grafana.cluster.prageethw.co"
+     url: "https://grafana.cluster.prageethw.com"
    istio:
      component_status:
        components:
@@ -29,22 +46,8 @@ spec:
          is_core: true
    prometheus:
      url: "http://prometheus-server.metrics:80"
-#    ---
-#    tracing:
-#      auth:
-#        ca_file: ""
-#        insecure_skip_verify: false
-#        password: ""
-#        token: ""
-#        type: "none"
-#        use_kiali_token: false
-#        username: ""
-#      component_status:
-#        app_label: "jaeger"
-#        is_core: false
-#      enabled: true
-#      in_cluster_url: ""
-#      namespace_selector: true
-#      url: ""
-#      whitelist_istio_system: ["jaeger-query", "istio-ingressgateway"]
+   tracing:
+     in_cluster_url: "http://jaeger-query:16686" #note port number
+     namespace_selector: true
+     url: "https://mesh-jaeger.cluster.prageethw.com"
 

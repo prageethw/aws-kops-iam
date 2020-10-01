@@ -172,7 +172,7 @@ kubectl apply -f resources/kube-metrics-adapter-pdb.yaml
 # install flagger
 helm upgrade -i flagger flagger-stable/flagger \
     --version 1.1.0 \
-    --namespace=metrics \
+    --namespace metrics \
     --set meshProvider=istio \
     --set resources.limits.cpu=100m \
     --set resources.limits.memory=250Mi \
@@ -180,3 +180,42 @@ helm upgrade -i flagger flagger-stable/flagger \
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
 kubectl apply -f resources/flagger-pdb.yaml
+
+# intall kiali-operator
+helm upgrade -i kiali-operator kiali/kiali-operator \
+    --version 1.24.0 \
+    --namespace istio-system \
+    --set debug.enabled=true \
+    --set cr.create=false \
+    --set watchNamespace=istio-system \
+    --set resources.limits.cpu=100m \
+    --set resources.limits.memory=250Mi 
+kubectl apply -f resources/kiali-cr.yaml -n istio-system #install kiali
+
+#install jaeger via operator,not prod ready if you want prod ready use helm as below with ES saas.
+helm upgrade -i jaeger-operator jaeger/jaeger-operator \
+    --namespace istio-system \
+    --set resources.limits.cpu=100m \
+    --set resources.limits.memory=250Mi 
+kubectl apply -f resources/jaeger-cr.yaml -n istio-system #install jaeger
+
+# # install jaeger refer doc to point external database
+# helm upgrade -i jaeger jaeger/jaeger \
+#     --version 0.37.2 \
+#     --namespace istio-system \
+#     --set schema.resources.limits.cpu=100m \
+#     --set schema.resources.limits.memory=200Mi \
+#     --set agent.resources.limits.cpu=100m \
+#     --set agent.resources.limits.memory=200Mi \
+#     --set collector.resources.limits.cpu=500m \
+#     --set collector.resources.limits.memory=512Mi \
+#     --set collector.service.zipkin.port=9411 \
+#     --set query.resources.limits.cpu=500m \
+#     --set query.resources.limits.memory=512Mi \
+#     --set cassandra.config.max_heap_size=1024M \
+#     --set cassandra.config.heap_new_size=256M \
+#     --set cassandra.resources.requests.memory=2048Mi \
+#     --set cassandra.resources.requests.cpu=0.4 \
+#     --set cassandra.resources.limits.memory=2048Mi \
+#     --set cassandra.resources.limits.cpu=0.4 \
+#     --set schema.extraEnv[0].name=MODE,schema.extraEnv[0].value=prod #prod will run 3 cassendra instances
