@@ -106,8 +106,9 @@ helm install prometheus prometheus/prometheus \
     --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2Gi" \
     --set server.resources.requests.cpu="500m",server.resources.requests.memory="1Gi" \
     --set alertmanager.resources.limits.cpu="500m",alertmanager.resources.limits.memory="1Gi" \
-    --set alertmanager.resources.requests.cpu="250m",alertmanager.resources.requests.memory="0.5Gi" \
-    --set nodeExporter.resources.limits.cpu="200m",alertmanager.resources.limits.memory="0.5Gi" \
+    --set alertmanager.resources.requests.cpu="200m",alertmanager.resources.requests.memory="0.4Gi" \
+    --set nodeExporter.resources.limits.cpu="200m",nodeExporter.resources.limits.memory="0.7Gi" \
+    --set pushgateway.resources.limits.cpu="100m",pushgateway.resources.limits.memory="0.2Gi" \
     --set alertmanager.statefulSet.enabled="true" \
     -f resources/monitoring-alerting-limits.yml
 kubectl -n metrics rollout status deployment prometheus-kube-state-metrics
@@ -144,7 +145,7 @@ helm install grafana grafana/grafana \
     --set persistence.size="5Gi" \
     --set podDisruptionBudget.minAvailable=1 \
     --set ingress.hosts="{$GRAFANA_ADDR}" \
-    --set server.resources.limits.cpu="200m",server.resources.limits.memory="500Mi" \
+    --set server.resources.limits.cpu="200m",server.resources.limits.memory="700Mi" \
     --values resources/grafana-values.yml
 kubectl -n metrics rollout status statefulset grafana
 kubectl  apply -f resources/grafana-pdb.yaml
