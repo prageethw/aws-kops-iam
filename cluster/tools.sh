@@ -20,9 +20,9 @@ helm repo update
 
 # install cluster auto scaler
 kubectl create namespace aws-cluster-autoscaler
-helm upgrade -i aws-cluster-autoscaler stable/cluster-autoscaler \
+helm upgrade -i aws-cluster-autoscaler autoscaler/cluster-autoscaler-chart \
     --namespace aws-cluster-autoscaler \
-    --version 7.0.0 \
+    --version 1.0.3 \
     --set autoDiscovery.clusterName=$NAME \
     --set awsRegion=$AWS_DEFAULT_REGION \
     --set sslCertPath=/etc/kubernetes/pki/ca.crt \
@@ -40,10 +40,10 @@ helm upgrade -i aws-cluster-autoscaler stable/cluster-autoscaler \
     --set extraArgs.skip-nodes-with-local-storage="false" \
     --set extraArgs.expander="least-waste" \
     --set replicaCount=2 \
-    --set podDisruptionBudget="minAvailable: 1" \
-    --set resources.limits.cpu="50m",resources.limits.memory="150Mi" \
-    --set resources.requests.cpu="25m",resources.requests.memory="60Mi"
-kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscaler
+    --set podDisruptionBudget.maxUnavailable=1 \
+    --set resources.limits.cpu="100m",resources.limits.memory="400Mi" \
+    --set resources.requests.cpu="50m",resources.requests.memory="60Mi"
+kubectl -n aws-cluster-autoscaler rollout status deployment aws-cluster-autoscaler-aws-cluster-autoscaler-chart
 # kubectl apply -f resources/aws-ca-pdb.yaml
 
 # install external-dns statful service no replicas supported atm
