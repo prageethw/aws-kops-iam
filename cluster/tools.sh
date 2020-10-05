@@ -107,7 +107,7 @@ helm upgrade -i prometheus prometheus/prometheus \
     --set server.ingress.annotations."nginx\.ingress\.kubernetes\.io/auth-realm"="Authentication Required - ok" \
     --set server.statefulSet.enabled="true" \
     --set server.global.scrape_interval="15s" \
-    --set server.resources.limits.cpu="1000m",server.resources.limits.memory="2.5Gi" \
+    --set server.resources.limits.cpu="1000m",server.resources.limits.memory="3Gi" \
     --set server.resources.requests.cpu="500m",server.resources.requests.memory="1.8Gi" \
     --set alertmanager.resources.limits.cpu="50m",alertmanager.resources.limits.memory="100Mi" \
     --set alertmanager.resources.requests.cpu="25m",alertmanager.resources.requests.memory="50Mi" \
@@ -186,9 +186,9 @@ helm upgrade -i flagger flagger-stable/flagger \
     --namespace metrics \
     --set meshProvider=istio \
     --set resources.limits.cpu=25m \
-    --set resources.limits.memory=50Mi \
+    --set resources.limits.memory=100Mi \
     --set resources.requests.cpu=10m \
-    --set resources.requests.memory=20Mi \
+    --set resources.requests.memory=50Mi \
     --set metricsServer=http://prometheus-server.metrics:80
 kubectl -n metrics rollout status deployment flagger
 kubectl apply -f resources/flagger-hpa.yaml
