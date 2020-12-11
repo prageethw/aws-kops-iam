@@ -97,7 +97,7 @@ kops create cluster \
   --zones $ZONES \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
-  --kubernetes-version v1.18.8 \
+  --kubernetes-version v1.18.9 \
   --ssh-public-key ${SSH_PUBLIC_KEY:-keys/kops/kops.pub} \
   --networking kubenet \
   --authorization RBAC \
@@ -179,9 +179,6 @@ else
 ####
 #### intall ingress ####
 
-    #kubectl create -f https://raw.githubusercontent.com/kubernetes/kops/master/addons/ingress-nginx/v1.6.0.yaml
-    #kubectl create -f https://raw.githubusercontent.com/prageethw/kops/master/addons/ingress-nginx/v1.6.0.yaml
-    # wget -O- -q https://raw.githubusercontent.com/prageethw/kops/master/addons/ingress-nginx/v1.6.0-aws-http-ssl-redirect.yaml>k8s.nginx.yaml
     wget -O- -q https://raw.githubusercontent.com/prageethw/kops/master/addons/ingress-nginx/v1.6.0-aws-http-ssl-redirect-with-hpa-pdb.yaml>k8s.nginx.yaml
     cat k8s.nginx.yaml  | sed -e     "s@ARN@$AWS_SSL_CERT_ARN@g" |     tee k8s.nginx.yaml
     kubectl apply -f k8s.nginx.yaml
@@ -189,7 +186,7 @@ else
 
 ###############################################################
 
-#### install helm if required ####
+#### install helm if required #### This is no longer required in helm 3 hence commented out below.
 
     if [[ ! -z "${USE_HELM}" ]]; then
         helm repo add stable https://kubernetes-charts.storage.googleapis.com
@@ -197,28 +194,12 @@ else
         helm repo add flagger-stable https://flagger.app
         helm repo add bitnami https://charts.bitnami.com/bitnami
         helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-        kubectl apply -f resources/tiller-rbac.yml 
-        helm init --service-account tiller
-        helm init --service-account tiller-dev --tiller-namespace dev
-        helm init --service-account tiller-test --tiller-namespace test 
-        helm init --service-account tiller-ops --tiller-namespace ops
-        #delete service and only allow CLI helm comms , security patch as suggested here https://engineering.bitnami.com/articles/helm-security.html
-        kubectl -n kube-system delete service tiller-deploy
-        kubectl -n dev delete service tiller-deploy
-        kubectl -n test delete service tiller-deploy
-        kubectl -n ops delete service tiller-deploy
-        kubectl -n kube-system patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
-        kubectl -n dev patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
-        kubectl -n test patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
-        kubectl -n ops patch deployment tiller-deploy --patch "$(cat resources/tiller-patch.yaml)"
-        kubectl -n kube-system rollout status deploy tiller-deploy
-        kubectl -n dev rollout status deploy tiller-deploy
-        kubectl -n test rollout status deploy tiller-deploy
-        kubectl -n ops rollout status deploy tiller-deploy
-        kubectl apply -f resources/tiller-hpa.yaml
-        kubectl apply -f resources/tiller-pdb.yaml
-        #fix tiller issue https://github.com/helm/helm/issues/2861
-        #kubectl apply -f resources/tiller-rbac-extend.yaml
+        helm repo add kiali https://kiali.org/helm-charts
+        helm repo add jaeger https://jaegertracing.github.io/helm-charts
+        helm repo add prometheus https://prometheus-community.github.io/helm-charts
+        helm repo add grafana https://grafana.github.io/helm-charts
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+        helm repo add autoscaler https://kubernetes.github.io/autoscaler
     fi
 
 ################################################################
@@ -290,27 +271,11 @@ else
     echo ""
     echo "K8S API SERVER: $API_SERVER_DNS"
     echo ""
-##### SSL offloading ########
+##### SSL cert validation ########
 
-    # export HTTP_ING_PORT=$(\
-    #             kubectl --namespace kube-ingress \
-    #             get all -o json | jq -r \
-    #             '.items[4].spec.ports[0].nodePort')
-
-    # echo "HTTP ING PORT: $HTTP_ING_PORT"
-    # echo ""
-    # delete original ELB port configs
-    #aws elb delete-load-balancer-listeners --load-balancer-name $LB_NAME --load-balancer-ports 80 443
-
-    # wait till ssl cert validated
     aws acm wait certificate-validated \
                --certificate-arn $AWS_SSL_CERT_ARN
     
-    # update https listner with new config
-    #aws elb create-load-balancer-listeners \
-    #        --load-balancer-name $LB_NAME \
-    #        --listeners "Protocol=SSL,LoadBalancerPort=443,InstanceProtocol=TCP,InstancePort=$HTTP_ING_PORT,SSLCertificateId=$AWS_SSL_CERT_ARN"
-
 #################################
 
 #########modify asg group####### 
@@ -350,13 +315,13 @@ else
 
 ################################################################
 
-#######install tools ###########################################
-
-     echo "installing required tools"
-     echo ""
-     sh tools.sh
-     echo ""
-
+#######install tools if only helm enabled ###########################################
+   if [[ ! -z "${USE_HELM}" ]]; then
+        echo "installing required tools"
+        echo ""
+        sh tools.sh
+        echo ""
+   fi
 ################################################################
 
     if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
