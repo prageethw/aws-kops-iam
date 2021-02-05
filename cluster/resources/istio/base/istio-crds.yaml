@@ -47,7 +47,6 @@ spec:
               - CUSTOM
               type: string
             provider:
-              description: Specifies detailed configuration of the CUSTOM action.
               properties:
                 name:
                   description: Specifies the name of the extension provider.
@@ -3508,6 +3507,7 @@ rules:
       - "security.istio.io"
       - "networking.istio.io"
       - "authentication.istio.io"
+      - "rbac.istio.io"
     resources: ["*"]
     verbs: ["get", "list", "watch"]
   - apiGroups: [""]
@@ -3545,7 +3545,9 @@ rules:
     verbs: ["get", "list", "watch", "update"]
 
   # istio configuration
-  - apiGroups: ["config.istio.io", "security.istio.io", "networking.istio.io", "authentication.istio.io"]
+  # removing CRD permissions can break older versions of Istio running alongside this control plane (https://github.com/istio/istio/issues/29382)
+  # please proceed with caution
+  - apiGroups: ["config.istio.io", "security.istio.io", "networking.istio.io", "authentication.istio.io", "rbac.istio.io"]
     verbs: ["get", "watch", "list"]
     resources: ["*"]
   - apiGroups: ["networking.istio.io"]
@@ -3716,4 +3718,4 @@ subjects:
     name: istiod-service-account
     namespace: istio-system
 ---
-# manifest generated with : client version: 1.8.1 control plane version: 1.8.1 data plane version: 1.8.1 (2 proxies)
+# manifest generated with : client version: 1.8.2 control plane version: 1.8.2 data plane version: 1.8.2 (2 proxies)
