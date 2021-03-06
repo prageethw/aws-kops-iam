@@ -123,7 +123,7 @@ else
     sed -i '' '/nodes: public/r resources/kops-3rd-party-jwt.yaml' $NAME.yaml
     kops create -f $NAME.yaml
     kops create secret --name $NAME sshpublickey admin -i keys/kops/kops.pub
-    kops update cluster $NAME  --yes
+    kops update cluster $NAME  --yes --admin=87600h
     CLUSTER_INIT_SLEEP=300
     echo "sleeping for initial " $CLUSTER_INIT_SLEEP "secs untill cluster available ..."
     echo "count down is ..."
@@ -147,7 +147,7 @@ else
     #patch manifest with autoscaling labels
     sed -i '' '/role: Node/r auto-sacaling-tags.temp.yaml' $NAME.yaml
     kops replace -f $NAME.yaml
-    kops update cluster $NAME --yes
+    kops update cluster $NAME --yes --admin=87600h
     #create name spaces
     kubectl apply -f resources/cluster-namespaces.yaml 
     #need api server name to build kube-config
@@ -163,7 +163,7 @@ else
     kubectl  apply -f config/iam-config-map.temp.yaml
     sed -i '' '/rbac: {}/r resources/enable-iam-auth-kops.yaml' $NAME.yaml
     kops replace -f $NAME.yaml
-    kops update cluster $NAME --yes
+    kops update cluster $NAME --yes --admin=87600h
     kops rolling-update cluster ${NAME} --instance-group-roles=Master  --cloudonly --force --yes
     #kops validate cluster
     SUB_SLEEP=30
@@ -417,7 +417,7 @@ if [[ -z "${DRY_RUN}"  ]]; then
   mkdir -p config
   touch $PWD/keys/kops/kops-kubecfg.yaml # stops an error of not having file.
   export KUBECONFIG=$PWD/keys/kops/kops-kubecfg.yaml
-  kops export kubecfg --name ${NAME}
+  kops export kubecfg --name ${NAME} --admin=87600h
   echo ""
 fi
 ###################################################
