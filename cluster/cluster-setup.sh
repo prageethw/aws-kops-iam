@@ -116,7 +116,7 @@ if [[ -n "${DRY_RUN}"  ]]; then
 else
     
     # cat manifest-cluster.yaml | sed -e  "s@KOPS_STATE_STORE@$KOPS_STATE_STORE@g" |     tee $NAME.yaml
-    cat $NAME.yaml  | sed -e  "s@minSize: $NODE_COUNT@minSize: ${MIN_NODE_COUNT:-2}@g" | tee $NAME.yaml
+    cat $NAME.yaml  | sed -e  "s@minSize: $NODE_COUNT@minSize: ${DESIRED_NODE_COUNT:-2}@g" | tee $NAME.yaml
     # enable webhook
     sed -i '' '/anonymousAuth: false/r resources/enable-webhook.yaml' $NAME.yaml
     # enable 3rd party jwt to support istio
