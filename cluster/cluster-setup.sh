@@ -329,9 +329,9 @@ else
    fi
 ################################################################
 
-    # if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
-    #     ./set-up-istio.sh
-    # fi
+    if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
+        ./set-up-istio.sh
+    fi
 
 fi
 
