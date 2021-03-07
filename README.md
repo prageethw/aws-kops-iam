@@ -29,7 +29,7 @@ MASTER_COUNT=3  MAX_NODE_COUNT=10 MIN_NODE_COUNT=0 DESIRED_NODE_COUNT=1 NODE_TYP
 ```
 
 **Note:**
-Above command will create a cluster named prageethw.co.k8s.local (**Note:** DNS name will be appended with .k8s.local) with 3 master nodes and 2 worker nodes.
+Above command will create a cluster named prageethw.co.k8s.local (**Note:** DNS name will be appended with .k8s.local) with 3 master nodes and 1 worker nodes in each AZ,Each AZ would have maximum 10 Nodes.
 BASIC_AUTH_PWD is the password you need to login to monitoring and alerting systems.To set something false pass "" as the value
 
 ## 2. delete cluster

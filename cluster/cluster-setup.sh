@@ -16,6 +16,7 @@ if [[ -z "${MY_ORG_DNS_NAME}" && -z "${MAX_NODE_COUNT}" && -z "${BASIC_AUTH_PWD}
     exit
 else
     export BUCKET_NAME="$MY_ORG_DNS_NAME.k8s.local"-$(date +%s)
+    export DEFAULT_TOTAL_NODE_COUNT=6 # This is set at initial startup
     export NAME="$MY_ORG_DNS_NAME.k8s.local"
     export DOMAIN_NAME=$MY_ORG_DNS_NAME
     export ACCNT_ID=$(aws sts get-caller-identity --output text --query Account)
@@ -42,9 +43,9 @@ else
               "*.test.cluster.$MY_ORG_DNS_NAME"  "test.cluster.$MY_ORG_DNS_NAME" | jq -r \
               '.CertificateArn')
     echo "ssl cert arn is :" $AWS_SSL_CERT_ARN
-    export NODE_COUNT=$MAX_NODE_COUNT
+    export NODE_COUNT=$DEFAULT_TOTAL_NODE_COUNT/3
     echo ""
-    echo "Maximum nodes allowed is :" $NODE_COUNT
+    echo "Maximum nodes allowed is :" $MAX_NODE_COUNT
 
 fi
 
@@ -91,9 +92,9 @@ fi
 kops create cluster \
   --name $NAME \
   --master-count ${MASTER_COUNT:-3} \
-  --node-count ${NODE_COUNT:-3} \
   --master-size ${MASTER_TYPE:-t3.small} \
   --node-size ${NODE_TYPE:-t3.small} \
+  --node-count ${DEFAULT_TOTAL_NODE_COUNT:-3} \
   --zones $ZONES \
   --encrypt-etcd-storage \
   --master-zones $ZONES \
@@ -116,7 +117,8 @@ if [[ -n "${DRY_RUN}"  ]]; then
 else
     
     # cat manifest-cluster.yaml | sed -e  "s@KOPS_STATE_STORE@$KOPS_STATE_STORE@g" |     tee $NAME.yaml
-    cat $NAME.yaml  | sed -e  "s@minSize: $NODE_COUNT@minSize: ${DESIRED_NODE_COUNT:-2}@g" | tee $NAME.yaml
+    cat $NAME.yaml  | sed -e  "s@minSize: $NODE_COUNT@minSize: ${DESIRED_NODE_COUNT:-1}@g" | tee $NAME.yaml
+    cat $NAME.yaml  | sed -e  "s@maxSize: $NODE_COUNT@maxSize: ${MAX_NODE_COUNT:-10}@g" | tee $NAME.yaml
     # enable webhook
     sed -i '' '/anonymousAuth: false/r resources/enable-webhook.yaml' $NAME.yaml
     # enable 3rd party jwt to support istio
@@ -279,31 +281,34 @@ else
 #################################
 
 #########modify asg group####### 
- 
-    export ASG_NAME=$(aws autoscaling \
-    describe-auto-scaling-groups \
-    | jq -r ".AutoScalingGroups[] \
-    | select(.AutoScalingGroupName \
-    | startswith(\"nodes.$DOMAIN_NAME\")) \
-    .AutoScalingGroupName")
+    IFS=',' read -ra ADDR <<< "$ZONES"
+    j=1
+    for i in "${ADDR[@]}"; do  
+        export ASG_NAME=$(aws autoscaling \
+        describe-auto-scaling-groups \
+        | jq -r ".AutoScalingGroups[] \
+        | select(.AutoScalingGroupName \
+        | startswith(\"nodes-$i.$DOMAIN_NAME\")) \
+        .AutoScalingGroupName")
 
-    #tag instances so kubernetes can figure it out 
-    for ID in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query AutoScalingGroups[].Instances[].InstanceId --output text);
-    do
-       aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true \
-                                                   Key=kubernetes.io/cluster/$NAME,Value=true \
-                                                   Key=k8s.io/cluster-autoscaler/$NAME,Value=true
+        #tag instances so kubernetes can figure it out 
+        for ID in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query AutoScalingGroups[].Instances[].InstanceId --output text); do
+            aws ec2  create-tags --resources $ID --tags Key=k8s.io/cluster-autoscaler/enabled,Value=true \
+                                                        Key=kubernetes.io/cluster/$NAME,Value=true \
+                                                        Key=k8s.io/cluster-autoscaler/$NAME,Value=true
+        done
+        #tag the group incase
+        aws autoscaling \
+        create-or-update-tags \
+        --tags \
+        ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
+        ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true \
+        ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/$NAME,Value=true,PropagateAtLaunch=true
+        
+        #set min,max,desired numbers nodes for k8s cluster
+        aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --desired-capacity ${DESIRED_NODE_COUNT:-1} --min-size  ${MIN_NODE_COUNT:-0}  --max-size ${MAX_NODE_COUNT:-5}       
+        ((j++))
     done
-    #tag the group incase
-    aws autoscaling \
-    create-or-update-tags \
-    --tags \
-    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/enabled,Value=true,PropagateAtLaunch=true \
-    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=kubernetes.io/cluster/$NAME,Value=true,PropagateAtLaunch=true \
-    ResourceId=$ASG_NAME,ResourceType=auto-scaling-group,Key=k8s.io/cluster-autoscaler/$NAME,Value=true,PropagateAtLaunch=true
-    
-    #set min,max,desired numbers nodes for k8s cluster
-    aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --desired-capacity ${DESIRED_NODE_COUNT:-2} --min-size  ${MIN_NODE_COUNT:-2}  --max-size ${NODE_COUNT:-5}
 
 ############################################
 
@@ -324,9 +329,9 @@ else
    fi
 ################################################################
 
-    if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
-        ./set-up-istio.sh
-    fi
+    # if [[ ! -z "${INSTALL_ISTIO_MESH}" ]]; then
+    #     ./set-up-istio.sh
+    # fi
 
 fi
 
