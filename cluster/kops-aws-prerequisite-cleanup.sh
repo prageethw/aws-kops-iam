@@ -41,7 +41,7 @@ aws iam detach-group-policy \
     --group-name kops
 
 aws iam detach-group-policy \
-    --policy-arn arn:aws:iam::aws:policy/AWSLambdaFullAccess \
+    --policy-arn arn:aws:iam::aws:policy/AWSLambda_FullAccess \
     --group-name kops
 
 aws iam delete-group-policy --policy-name kops-kms --group-name kops

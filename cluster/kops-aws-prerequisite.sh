@@ -22,7 +22,7 @@ aws iam attach-group-policy \
     --group-name kops
 
 aws iam attach-group-policy \
-    --policy-arn arn:aws:iam::aws:policy/AWSLambdaFullAccess \
+    --policy-arn arn:aws:iam::aws:policy/AWSLambda_FullAccess \
     --group-name kops
 
 aws iam attach-group-policy \
